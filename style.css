@@ -131,3 +131,48 @@ header{background:#111;padding:12px 22px;display:flex;align-items:center;justify
 .ctxtlr{text-align:center;text-transform:uppercase;line-height:1.45;letter-spacing:.6px;}
 .ctxt-left{text-align:left;width:100%;}
 .ctxtlr-left{text-align:left;width:100%;}
+
+/* ========== RESPONSIVE MÓVIL ========== */
+@media (max-width: 700px) {
+  /* Header compacto */
+  header{padding:10px 14px;}
+  .hsub{display:none;}
+  .hbadge{font-size:9px;padding:2px 7px;}
+
+  /* Layout en columna: panel arriba, preview abajo */
+  .app{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  .panel{
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 12px;
+    gap: 14px;
+  }
+  .preview{
+    padding: 16px 10px;
+    min-height: 340px;
+  }
+
+  /* Tarjeta escalada para caber en pantalla */
+  #cardWrap{
+    transform-origin: top center;
+    transform: scale(0.72);
+    margin-bottom: -60px;
+  }
+
+  /* Paleta de marcos en más columnas */
+  .pal20{grid-template-columns: repeat(10, 1fr); gap: 4px;}
+
+  /* Fuentes en 3 columnas */
+  .fg{grid-template-columns: repeat(3, 1fr);}
+
+  /* Layouts en 4 columnas */
+  .lg{grid-template-columns: repeat(4, 1fr);}
+
+  /* Botones más grandes para touch */
+  .btn{padding: 13px; font-size: 13px;}
+  .btn-add{padding: 10px; font-size: 12px;}
+}

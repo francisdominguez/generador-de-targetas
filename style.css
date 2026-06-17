@@ -132,6 +132,24 @@ header{background:#111;padding:12px 22px;display:flex;align-items:center;justify
 .ctxt-left{text-align:left;width:100%;}
 .ctxtlr-left{text-align:left;width:100%;}
 
+
+/* INPUT SUBTÍTULO */
+.sub-input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 11px;
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  color: #111;
+  background: #faf8f5;
+  outline: none;
+  margin-top: 4px;
+  transition: .15s;
+}
+.sub-input:focus { border-color: #111; background: #fff; }
+.sub-input::placeholder { color: #bbb; }
+
 /* ========== RESPONSIVE MÓVIL ========== */
 @media (max-width: 700px) {
   /* Header compacto */

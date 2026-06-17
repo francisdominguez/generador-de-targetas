@@ -135,44 +135,65 @@ header{background:#111;padding:12px 22px;display:flex;align-items:center;justify
 /* ========== RESPONSIVE MÓVIL ========== */
 @media (max-width: 700px) {
   /* Header compacto */
-  header{padding:10px 14px;}
-  .hsub{display:none;}
-  .hbadge{font-size:9px;padding:2px 7px;}
+  header { padding: 10px 14px; }
+  .hsub { display: none; }
+  .hbadge { font-size: 9px; padding: 2px 7px; }
 
-  /* Layout en columna: panel arriba, preview abajo */
-  .app{
+  /* App en columna: preview arriba fijo, panel abajo con scroll */
+  body { overflow: hidden; height: 100vh; }
+
+  .app {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-  }
-  .panel{
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-    padding: 14px 12px;
-    gap: 14px;
-  }
-  .preview{
-    padding: 16px 10px;
-    min-height: 340px;
+    grid-template-rows: auto 1fr;
+    height: calc(100vh - 44px);
+    overflow: hidden;
   }
 
-  /* Tarjeta escalada para caber en pantalla */
-  #cardWrap{
+  /* Tarjeta FIJA arriba */
+  .preview {
+    order: -1;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    padding: 10px 8px 8px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    max-height: 40vh;
+    min-height: 0;
+  }
+
+  /* Escalar tarjeta para caber */
+  #cardWrap {
     transform-origin: top center;
-    transform: scale(0.72);
-    margin-bottom: -60px;
+    transform: scale(0.55);
+    margin-bottom: -120px;
+    pointer-events: none;
+  }
+
+  /* Panel con scroll abajo */
+  .panel {
+    order: 1;
+    overflow-y: auto;
+    max-height: 60vh;
+    border-right: none;
+    padding: 14px 12px 40px;
+    gap: 14px;
   }
 
   /* Paleta de marcos en más columnas */
-  .pal20{grid-template-columns: repeat(10, 1fr); gap: 4px;}
+  .pal20 { grid-template-columns: repeat(10, 1fr); gap: 4px; }
 
   /* Fuentes en 3 columnas */
-  .fg{grid-template-columns: repeat(3, 1fr);}
+  .fg { grid-template-columns: repeat(3, 1fr); }
 
   /* Layouts en 4 columnas */
-  .lg{grid-template-columns: repeat(4, 1fr);}
+  .lg { grid-template-columns: repeat(4, 1fr); }
 
   /* Botones más grandes para touch */
-  .btn{padding: 13px; font-size: 13px;}
-  .btn-add{padding: 10px; font-size: 12px;}
+  .btn { padding: 13px; font-size: 13px; }
+  .btn-add { padding: 10px; font-size: 12px; }
 }

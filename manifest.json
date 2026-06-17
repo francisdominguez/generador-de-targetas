@@ -1,0 +1,25 @@
+{
+  "name": "Generador de Tarjetas",
+  "short_name": "Tarjetas BP",
+  "description": "Crea tarjetas personalizadas con foto y mensaje",
+  "start_url": "/generador-de-targetas/",
+  "scope": "/generador-de-targetas/",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#111111",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

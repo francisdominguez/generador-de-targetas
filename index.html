@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tarjetas Blue Princess - Marco y Foto Ajustables</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Dancing+Script:wght@700&family=Inter:wght@400;500;600&family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<title>Generador de Tarjetas</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Dancing+Script:wght@700&family=Inter:wght@400;500;600&family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&family=Pacifico&family=Lobster&family=Oswald:wght@700&family=Bebas+Neue&family=Sacramento&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <meta name="theme-color" content="#111111">
 <meta name="mobile-web-app-capable" content="yes">
@@ -13,11 +13,7 @@
 <meta name="apple-mobile-web-app-title" content="Tarjetas BP">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/generador-de-targetas/sw.js");
-  }
-</script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/generador-de-targetas/sw.js');}</script>
 </head>
 <body>
 <header>
@@ -31,7 +27,7 @@
 <div class="app">
 <div class="panel">
 
-  <!-- FOTO -->
+  <!-- 1. FOTO -->
   <div>
     <div class="st"><span class="n">1</span>Foto</div>
     <div class="upz" id="upz" onclick="onUpzClick(event)">
@@ -42,13 +38,13 @@
     <input type="file" id="fi" accept="image/*">
   </div>
 
-  <!-- MENSAJE -->
+  <!-- 2. MENSAJE -->
   <div>
-    <div class="st"><span class="n">2</span>Mensaje</div>
+    <div class="st"><span class="n">2</span>Mensaje principal</div>
     <div class="msg-list" id="msgList"></div>
     <button class="btn-add" onclick="startAdd()">+ Agregar mensaje</button>
     <div class="msg-editor" id="msgEditor">
-      <textarea id="msgTA" placeholder="Escribe el mensaje en mayúsculas…"></textarea>
+      <textarea id="msgTA" placeholder="Escribe el mensaje…"></textarea>
       <div class="msg-editor-btns">
         <button class="me-cancel" onclick="cancelEdit()">Cancelar</button>
         <button class="me-save" onclick="saveEdit()">Guardar</button>
@@ -56,60 +52,81 @@
     </div>
   </div>
 
-  <!-- COLOR MARCO EXTERIOR -->
+  <!-- 3. SUBTÍTULO -->
   <div>
-    <div class="st"><span class="n">3</span>Color marco exterior</div>
+    <div class="st"><span class="n">3</span>Subtítulo / 2da línea</div>
+    <input type="text" id="subtituloInput" placeholder="Ej: CON TODO MI AMOR ❤" class="sub-input">
+  </div>
+
+  <!-- 4. COLOR MARCO -->
+  <div>
+    <div class="st"><span class="n">4</span>Color marco exterior</div>
     <div class="pal20" id="palMarco"></div>
   </div>
 
-  <!-- TAMAÑO DEL MARCO EXTERIOR -->
+  <!-- 5. TAMAÑO MARCO -->
   <div class="range-group">
-    <div class="st"><span class="n">4</span>Tamaño del marco exterior</div>
+    <div class="st"><span class="n">5</span>Tamaño del marco</div>
     <div class="slider-control">
       <label>Ancho del borde: <span id="marcoSizeValue" class="slider-value">16px</span></label>
       <input type="range" id="marcoSizeSlider" min="4" max="40" value="16" step="1">
-      <div style="font-size:8px; color:#888; margin-top:4px;">← Más pequeño | Más grande →</div>
     </div>
   </div>
 
-  <!-- TAMAÑO DE LA FOTO -->
+  <!-- 6. TAMAÑO FOTO -->
   <div class="range-group">
-    <div class="st"><span class="n">5</span>Tamaño de la foto</div>
+    <div class="st"><span class="n">6</span>Tamaño de la foto</div>
     <div class="slider-control">
-      <label>Marco interior / Tamaño foto: <span id="fotoSizeValue" class="slider-value">Mediano</span></label>
+      <label>Tamaño foto: <span id="fotoSizeValue" class="slider-value">Mediana</span></label>
       <input type="range" id="fotoSizeSlider" min="0" max="100" value="50" step="5">
-      <div style="font-size:8px; color:#888; margin-top:4px;">← Foto más pequeña | Foto más grande →</div>
     </div>
   </div>
 
-  <!-- COLOR FONDO TARJETA -->
-  <div>
-    <div class="st"><span class="n">6</span>Color fondo tarjeta</div>
-    <div class="pal5" id="palFondo"></div>
+  <!-- 7. TAMAÑO TEXTO -->
+  <div class="range-group">
+    <div class="st"><span class="n">7</span>Tamaño del texto</div>
+    <div class="slider-control">
+      <label>Tamaño: <span id="fontSizeValue" class="slider-value">50%</span></label>
+      <input type="range" id="fontSizeSlider" min="0" max="100" value="50" step="5">
+    </div>
   </div>
 
-  <!-- COLOR LETRAS -->
+  <!-- 8. COLOR FONDO -->
   <div>
-    <div class="st"><span class="n">7</span>Color de letras</div>
+    <div class="st"><span class="n">8</span>Color fondo tarjeta</div>
+    <div class="pal20" id="palFondo"></div>
+  </div>
+
+  <!-- 9. COLOR LETRAS -->
+  <div>
+    <div class="st"><span class="n">9</span>Color de letras</div>
     <div class="tc-row" id="palTexto"></div>
   </div>
 
-  <!-- ALINEACIÓN DE TEXTO -->
+  <!-- 10. ALINEACIÓN -->
   <div>
-    <div class="st"><span class="n">8</span>Alineación del texto</div>
+    <div class="st"><span class="n">10</span>Alineación del texto</div>
     <div class="tc-row" id="alignRow">
       <div class="tcc align-opt active" data-align="center">📐 Centrado</div>
       <div class="tcc align-opt" data-align="left">⬅ Izquierda</div>
     </div>
   </div>
 
-  <!-- FUENTE -->
+  <!-- 11. FUENTE -->
   <div>
-    <div class="st"><span class="n">9</span>Tipografía</div>
+    <div class="st"><span class="n">11</span>Tipografía</div>
     <div class="fg">
       <div class="fo active" onclick="setFont(this,'Montserrat','sans-serif',900)">
         <div class="fo-s" style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;">AMOR</div>
         <div class="fo-n">Montserrat</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Bebas Neue','sans-serif',400)">
+        <div class="fo-s" style="font-family:'Bebas Neue',sans-serif;font-size:14px;">AMOR</div>
+        <div class="fo-n">Bebas Neue</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Oswald','sans-serif',700)">
+        <div class="fo-s" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;">AMOR</div>
+        <div class="fo-n">Oswald</div>
       </div>
       <div class="fo" onclick="setFont(this,'Arial Black','sans-serif',900)">
         <div class="fo-s" style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:11px;">AMOR</div>
@@ -119,28 +136,40 @@
         <div class="fo-s" style="font-family:'Georgia',serif;font-weight:700;font-size:13px;">Amor</div>
         <div class="fo-n">Georgia</div>
       </div>
-      <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)">
-        <div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div>
-        <div class="fo-n">Dancing Script</div>
-      </div>
       <div class="fo" onclick="setFont(this,'Playfair Display','serif',900)">
         <div class="fo-s" style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;">AMOR</div>
-        <div class="fo-n">Playfair Display</div>
+        <div class="fo-n">Playfair</div>
       </div>
       <div class="fo" onclick="setFont(this,'Cormorant Garamond','serif',700)">
         <div class="fo-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;">Amor</div>
         <div class="fo-n">Cormorant</div>
       </div>
+      <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)">
+        <div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div>
+        <div class="fo-n">Dancing Script</div>
+      </div>
       <div class="fo" onclick="setFont(this,'Great Vibes','cursive',400)">
         <div class="fo-s" style="font-family:'Great Vibes',cursive;font-weight:400;font-size:16px;">Amor</div>
         <div class="fo-n">Great Vibes</div>
       </div>
+      <div class="fo" onclick="setFont(this,'Sacramento','cursive',400)">
+        <div class="fo-s" style="font-family:'Sacramento',cursive;font-weight:400;font-size:15px;">Amor</div>
+        <div class="fo-n">Sacramento</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Pacifico','cursive',400)">
+        <div class="fo-s" style="font-family:'Pacifico',cursive;font-weight:400;font-size:12px;">Amor</div>
+        <div class="fo-n">Pacifico</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Lobster','cursive',400)">
+        <div class="fo-s" style="font-family:'Lobster',cursive;font-weight:400;font-size:13px;">Amor</div>
+        <div class="fo-n">Lobster</div>
+      </div>
     </div>
   </div>
 
-  <!-- FORMA -->
+  <!-- 12. FORMA -->
   <div>
-    <div class="st"><span class="n">10</span>Forma</div>
+    <div class="st"><span class="n">12</span>Forma</div>
     <div class="lg">
       <div class="lo active" onclick="setLayout(this,'top')">
         <svg width="46" height="34" viewBox="0 0 46 34">
@@ -181,9 +210,9 @@
     </div>
   </div>
 
-  <!-- GENERAR -->
+  <!-- 13. EXPORTAR -->
   <div>
-    <div class="st"><span class="n">11</span>Exportar</div>
+    <div class="st"><span class="n">13</span>Exportar</div>
     <button class="btn btn-gen" onclick="render()">✨ Actualizar tarjeta</button>
     <button class="btn btn-dl" onclick="download()">⬇ Descargar PNG</button>
   </div>

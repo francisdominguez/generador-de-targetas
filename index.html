@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjetas Blue Princess - Marco y Foto Ajustables</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Dancing+Script:wght@700&family=Inter:wght@400;500;600&family=Playfair+Display:wght@700;900&family=Cormorant+Garamond:wght@500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div>
+    <div class="hlogo">Tarjetas <em>Blue Princess</em></div>
+    <div class="hsub">Marco ajustable · Tamaño de foto variable</div>
+  </div>
+  <div class="hbadge">PNG 3× · Apto impresión</div>
+</header>
+
+<div class="app">
+<div class="panel">
+
+  <!-- FOTO -->
+  <div>
+    <div class="st"><span class="n">1</span>Foto</div>
+    <div class="upz" id="upz" onclick="onUpzClick(event)">
+      <div class="upz-ico">🖼️</div>
+      <div class="upz-lbl"><strong>Clic para subir</strong><br>JPG · PNG · WEBP</div>
+      <div class="upz-chg" onclick="resetImg(event)">✕ Cambiar</div>
+    </div>
+    <input type="file" id="fi" accept="image/*">
+  </div>
+
+  <!-- MENSAJE -->
+  <div>
+    <div class="st"><span class="n">2</span>Mensaje</div>
+    <div class="msg-list" id="msgList"></div>
+    <button class="btn-add" onclick="startAdd()">+ Agregar mensaje</button>
+    <div class="msg-editor" id="msgEditor">
+      <textarea id="msgTA" placeholder="Escribe el mensaje en mayúsculas…"></textarea>
+      <div class="msg-editor-btns">
+        <button class="me-cancel" onclick="cancelEdit()">Cancelar</button>
+        <button class="me-save" onclick="saveEdit()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR MARCO EXTERIOR -->
+  <div>
+    <div class="st"><span class="n">3</span>Color marco exterior</div>
+    <div class="pal20" id="palMarco"></div>
+  </div>
+
+  <!-- TAMAÑO DEL MARCO EXTERIOR -->
+  <div class="range-group">
+    <div class="st"><span class="n">4</span>Tamaño del marco exterior</div>
+    <div class="slider-control">
+      <label>Ancho del borde: <span id="marcoSizeValue" class="slider-value">16px</span></label>
+      <input type="range" id="marcoSizeSlider" min="4" max="40" value="16" step="1">
+      <div style="font-size:8px; color:#888; margin-top:4px;">← Más pequeño | Más grande →</div>
+    </div>
+  </div>
+
+  <!-- TAMAÑO DE LA FOTO -->
+  <div class="range-group">
+    <div class="st"><span class="n">5</span>Tamaño de la foto</div>
+    <div class="slider-control">
+      <label>Marco interior / Tamaño foto: <span id="fotoSizeValue" class="slider-value">Mediano</span></label>
+      <input type="range" id="fotoSizeSlider" min="0" max="100" value="50" step="5">
+      <div style="font-size:8px; color:#888; margin-top:4px;">← Foto más pequeña | Foto más grande →</div>
+    </div>
+  </div>
+
+  <!-- COLOR FONDO TARJETA -->
+  <div>
+    <div class="st"><span class="n">6</span>Color fondo tarjeta</div>
+    <div class="pal5" id="palFondo"></div>
+  </div>
+
+  <!-- COLOR LETRAS -->
+  <div>
+    <div class="st"><span class="n">7</span>Color de letras</div>
+    <div class="tc-row" id="palTexto"></div>
+  </div>
+
+  <!-- ALINEACIÓN DE TEXTO -->
+  <div>
+    <div class="st"><span class="n">8</span>Alineación del texto</div>
+    <div class="tc-row" id="alignRow">
+      <div class="tcc align-opt active" data-align="center">📐 Centrado</div>
+      <div class="tcc align-opt" data-align="left">⬅ Izquierda</div>
+    </div>
+  </div>
+
+  <!-- FUENTE -->
+  <div>
+    <div class="st"><span class="n">9</span>Tipografía</div>
+    <div class="fg">
+      <div class="fo active" onclick="setFont(this,'Montserrat','sans-serif',900)">
+        <div class="fo-s" style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;">AMOR</div>
+        <div class="fo-n">Montserrat</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Arial Black','sans-serif',900)">
+        <div class="fo-s" style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:11px;">AMOR</div>
+        <div class="fo-n">Arial Black</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Georgia','serif',700)">
+        <div class="fo-s" style="font-family:'Georgia',serif;font-weight:700;font-size:13px;">Amor</div>
+        <div class="fo-n">Georgia</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)">
+        <div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div>
+        <div class="fo-n">Dancing Script</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Playfair Display','serif',900)">
+        <div class="fo-s" style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;">AMOR</div>
+        <div class="fo-n">Playfair Display</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Cormorant Garamond','serif',700)">
+        <div class="fo-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;">Amor</div>
+        <div class="fo-n">Cormorant</div>
+      </div>
+      <div class="fo" onclick="setFont(this,'Great Vibes','cursive',400)">
+        <div class="fo-s" style="font-family:'Great Vibes',cursive;font-weight:400;font-size:16px;">Amor</div>
+        <div class="fo-n">Great Vibes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMA -->
+  <div>
+    <div class="st"><span class="n">10</span>Forma</div>
+    <div class="lg">
+      <div class="lo active" onclick="setLayout(this,'top')">
+        <svg width="46" height="34" viewBox="0 0 46 34">
+          <rect x="1" y="1" width="44" height="12" rx="1" fill="#111"/>
+          <text x="23" y="9.5" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text>
+          <rect x="1" y="16" width="44" height="16" rx="1" fill="#ccc"/>
+          <text x="23" y="26" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text>
+        </svg>
+        <span>Texto arriba</span>
+      </div>
+      <div class="lo" onclick="setLayout(this,'bottom')">
+        <svg width="46" height="34" viewBox="0 0 46 34">
+          <rect x="1" y="1" width="44" height="16" rx="1" fill="#ccc"/>
+          <text x="23" y="11" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text>
+          <rect x="1" y="20" width="44" height="12" rx="1" fill="#111"/>
+          <text x="23" y="29" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text>
+        </svg>
+        <span>Texto abajo</span>
+      </div>
+      <div class="lo" onclick="setLayout(this,'left')">
+        <svg width="46" height="34" viewBox="0 0 46 34">
+          <rect x="1" y="1" width="20" height="32" rx="1" fill="#ccc"/>
+          <text x="11" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text>
+          <rect x="25" y="1" width="20" height="32" rx="1" fill="#111"/>
+          <text x="35" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text>
+        </svg>
+        <span>Foto izq.</span>
+      </div>
+      <div class="lo" onclick="setLayout(this,'right')">
+        <svg width="46" height="34" viewBox="0 0 46 34">
+          <rect x="1" y="1" width="20" height="32" rx="1" fill="#111"/>
+          <text x="11" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text>
+          <rect x="25" y="1" width="20" height="32" rx="1" fill="#ccc"/>
+          <text x="35" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text>
+        </svg>
+        <span>Foto der.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERAR -->
+  <div>
+    <div class="st"><span class="n">11</span>Exportar</div>
+    <button class="btn btn-gen" onclick="render()">✨ Actualizar tarjeta</button>
+    <button class="btn btn-dl" onclick="download()">⬇ Descargar PNG</button>
+  </div>
+
+</div>
+
+<!-- PREVIEW -->
+<div class="preview">
+  <div id="cardWrap"></div>
+</div>
+</div>
+
+<script src="app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>

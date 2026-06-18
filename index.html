@@ -17,7 +17,6 @@
 </head>
 <body>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <header>
@@ -26,211 +25,206 @@
     <div class="hsub">Generador de tarjetas personalizadas</div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
-    <button id="darkBtn" onclick="toggleDark()" class="hbtn">🌙 Modo oscuro</button>
+    <button id="darkBtn" onclick="toggleDark()" class="hbtn">🌙</button>
     <div class="hbadge">PNG 3×</div>
   </div>
 </header>
 
 <div class="app">
-<div class="panel">
 
-  <!-- 1. FOTO -->
-  <div>
-    <div class="st"><span class="n">1</span>Foto</div>
-    <div class="upz" id="upz" onclick="onUpzClick(event)">
-      <div class="upz-ico">🖼️</div>
-      <div class="upz-lbl"><strong>Clic para subir</strong><br>JPG · PNG · WEBP</div>
-      <div class="upz-chg" onclick="resetImg(event)">✕ Cambiar</div>
-    </div>
-    <input type="file" id="fi" accept="image/*">
-  </div>
+  <!-- PANEL IZQUIERDO -->
+  <div class="panel">
 
-  <!-- 2. MENSAJE -->
-  <div>
-    <div class="st"><span class="n">2</span>Mensaje principal</div>
-    <div class="msg-list" id="msgList"></div>
-    <button class="btn-add" onclick="startAdd()">+ Agregar mensaje</button>
-    <div class="msg-editor" id="msgEditor">
-      <textarea id="msgTA" placeholder="Escribe el mensaje…"></textarea>
-      <div class="msg-editor-btns">
-        <button class="me-cancel" onclick="cancelEdit()">Cancelar</button>
-        <button class="me-save" onclick="saveEdit()">Guardar</button>
+    <!-- ① FOTO -->
+    <div class="acc-section">
+      <button class="acc-btn active" onclick="toggleAcc(this)">
+        <span class="acc-icon">🖼️</span><span class="acc-label">Foto</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body open">
+        <div class="upz" id="upz" onclick="onUpzClick(event)">
+          <div class="upz-ico">🖼️</div>
+          <div class="upz-lbl"><strong>Clic para subir</strong><br>JPG · PNG · WEBP</div>
+          <div class="upz-chg" onclick="resetImg(event)">✕ Cambiar</div>
+        </div>
+        <input type="file" id="fi" accept="image/*">
+        <div style="margin-top:10px;">
+          <div class="mini-label">Ajuste de foto</div>
+          <button id="photoFitBtn" class="fit-btn">✂️ Recortar (cover)</button>
+          <div class="slider-control" style="margin-top:8px;">
+            <label>Zoom: <span id="photoZoomValue" class="slider-value">100%</span></label>
+            <input type="range" id="photoZoomSlider" min="50" max="200" value="100" step="5">
+          </div>
+          <div class="slider-control" style="margin-top:6px;">
+            <label>Posición horizontal</label>
+            <input type="range" id="photoXSlider" min="0" max="100" value="50" step="1">
+          </div>
+          <div class="slider-control" style="margin-top:6px;">
+            <label>Posición vertical</label>
+            <input type="range" id="photoYSlider" min="0" max="100" value="50" step="1">
+          </div>
+          <div class="slider-control" style="margin-top:6px;">
+            <label>Tamaño cuadro foto: <span id="fotoSizeValue" class="slider-value">Mediana</span></label>
+            <input type="range" id="fotoSizeSlider" min="0" max="100" value="50" step="5">
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- 3. SUBTÍTULO -->
-  <div>
-    <div class="st"><span class="n">3</span>Subtítulo / 2da línea</div>
-    <input type="text" id="subtituloInput" placeholder="Ej: CON TODO MI AMOR ❤" class="sub-input">
-  </div>
-
-  <!-- 4. STICKERS -->
-  <div>
-    <div class="st"><span class="n">4</span>Stickers decorativos</div>
-    <div id="stickerRow" class="sticker-row"></div>
-    <button class="btn-add" onclick="clearStickers()" style="margin-top:4px;">✕ Limpiar stickers</button>
-    <div style="font-size:9px;color:#aaa;margin-top:3px;">Toca para agregar · Arrastra para mover · Doble clic para borrar</div>
-  </div>
-
-  <!-- TAMAÑO TARJETA -->
-  <div class="range-group">
-    <div class="st"><span class="n">★</span>Tamaño de la tarjeta</div>
-    <div class="slider-control">
-      <label>Ancho: <span id="cardWidthValue" class="slider-value">460px</span></label>
-      <input type="range" id="cardWidthSlider" min="280" max="700" value="460" step="10">
-      <div style="font-size:8px;color:#888;margin-top:3px;">← Pequeña | Grande →</div>
-    </div>
-  </div>
-
-  <!-- AJUSTE DE FOTO -->
-  <div class="range-group">
-    <div class="st"><span class="n">★</span>Ajuste de la foto</div>
-    <button id="photoFitBtn" class="fit-btn">✂️ Recortar (cover)</button>
-    <div class="slider-control" style="margin-top:8px;">
-      <label>Zoom foto: <span id="photoZoomValue" class="slider-value">100%</span></label>
-      <input type="range" id="photoZoomSlider" min="50" max="200" value="100" step="5">
-    </div>
-    <div class="slider-control" style="margin-top:6px;">
-      <label>Posición horizontal</label>
-      <input type="range" id="photoXSlider" min="0" max="100" value="50" step="1">
-    </div>
-    <div class="slider-control" style="margin-top:6px;">
-      <label>Posición vertical</label>
-      <input type="range" id="photoYSlider" min="0" max="100" value="50" step="1">
-    </div>
-  </div>
-
-  <!-- 5. COLOR MARCO -->
-  <div>
-    <div class="st"><span class="n">5</span>Color marco exterior</div>
-    <div class="pal20" id="palMarco"></div>
-  </div>
-
-  <!-- 6. TAMAÑO MARCO -->
-  <div class="range-group">
-    <div class="st"><span class="n">6</span>Tamaño del marco</div>
-    <div class="slider-control">
-      <label>Ancho: <span id="marcoSizeValue" class="slider-value">16px</span></label>
-      <input type="range" id="marcoSizeSlider" min="4" max="40" value="16" step="1">
-    </div>
-  </div>
-
-  <!-- 7. DECORACIÓN MARCO -->
-  <div>
-    <div class="st"><span class="n">7</span>Decoración del marco</div>
-    <div id="marcoDecoRow" class="pat-row"></div>
-  </div>
-
-  <!-- 8. TAMAÑO FOTO -->
-  <div class="range-group">
-    <div class="st"><span class="n">8</span>Tamaño de la foto</div>
-    <div class="slider-control">
-      <label>Tamaño: <span id="fotoSizeValue" class="slider-value">Mediana</span></label>
-      <input type="range" id="fotoSizeSlider" min="0" max="100" value="50" step="5">
-    </div>
-  </div>
-
-  <!-- 9. TAMAÑO TEXTO -->
-  <div class="range-group">
-    <div class="st"><span class="n">9</span>Tamaño del texto</div>
-    <div class="slider-control">
-      <label>Tamaño: <span id="fontSizeValue" class="slider-value">50%</span></label>
-      <input type="range" id="fontSizeSlider" min="0" max="100" value="50" step="5">
-    </div>
-  </div>
-
-  <!-- 10. COLOR FONDO -->
-  <div>
-    <div class="st"><span class="n">10</span>Color fondo tarjeta</div>
-    <div class="pal20" id="palFondo"></div>
-  </div>
-
-  <!-- 11. PATRÓN FONDO -->
-  <div>
-    <div class="st"><span class="n">11</span>Fondo / patrón</div>
-    <div id="patronRow" class="pat-row"></div>
-  </div>
-
-  <!-- 12. COLOR LETRAS -->
-  <div>
-    <div class="st"><span class="n">12</span>Color de letras</div>
-    <div class="tc-row" id="palTexto"></div>
-  </div>
-
-  <!-- 13. ALINEACIÓN -->
-  <div>
-    <div class="st"><span class="n">13</span>Alineación del texto</div>
-    <div class="tc-row">
-      <div class="tcc align-opt active" data-align="center">📐 Centrado</div>
-      <div class="tcc align-opt" data-align="left">⬅ Izquierda</div>
-    </div>
-  </div>
-
-  <!-- 14. FUENTE -->
-  <div>
-    <div class="st"><span class="n">14</span>Tipografía</div>
-    <div class="fg">
-      <div class="fo active" onclick="setFont(this,'Montserrat','sans-serif',900)"><div class="fo-s" style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;">AMOR</div><div class="fo-n">Montserrat</div></div>
-      <div class="fo" onclick="setFont(this,'Bebas Neue','sans-serif',400)"><div class="fo-s" style="font-family:'Bebas Neue',sans-serif;font-size:14px;">AMOR</div><div class="fo-n">Bebas Neue</div></div>
-      <div class="fo" onclick="setFont(this,'Oswald','sans-serif',700)"><div class="fo-s" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;">AMOR</div><div class="fo-n">Oswald</div></div>
-      <div class="fo" onclick="setFont(this,'Arial Black','sans-serif',900)"><div class="fo-s" style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:11px;">AMOR</div><div class="fo-n">Arial Black</div></div>
-      <div class="fo" onclick="setFont(this,'Georgia','serif',700)"><div class="fo-s" style="font-family:'Georgia',serif;font-weight:700;font-size:13px;">Amor</div><div class="fo-n">Georgia</div></div>
-      <div class="fo" onclick="setFont(this,'Playfair Display','serif',900)"><div class="fo-s" style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;">AMOR</div><div class="fo-n">Playfair</div></div>
-      <div class="fo" onclick="setFont(this,'Cormorant Garamond','serif',700)"><div class="fo-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;">Amor</div><div class="fo-n">Cormorant</div></div>
-      <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)"><div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div><div class="fo-n">Dancing</div></div>
-      <div class="fo" onclick="setFont(this,'Great Vibes','cursive',400)"><div class="fo-s" style="font-family:'Great Vibes',cursive;font-weight:400;font-size:16px;">Amor</div><div class="fo-n">Great Vibes</div></div>
-      <div class="fo" onclick="setFont(this,'Sacramento','cursive',400)"><div class="fo-s" style="font-family:'Sacramento',cursive;font-weight:400;font-size:15px;">Amor</div><div class="fo-n">Sacramento</div></div>
-      <div class="fo" onclick="setFont(this,'Pacifico','cursive',400)"><div class="fo-s" style="font-family:'Pacifico',cursive;font-weight:400;font-size:12px;">Amor</div><div class="fo-n">Pacifico</div></div>
-      <div class="fo" onclick="setFont(this,'Lobster','cursive',400)"><div class="fo-s" style="font-family:'Lobster',cursive;font-weight:400;font-size:13px;">Amor</div><div class="fo-n">Lobster</div></div>
-    </div>
-  </div>
-
-  <!-- 15. FORMA -->
-  <div>
-    <div class="st"><span class="n">15</span>Forma</div>
-    <div class="lg">
-      <div class="lo active" onclick="setLayout(this,'top')">
-        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="44" height="12" rx="1" fill="#111"/><text x="23" y="9.5" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text><rect x="1" y="16" width="44" height="16" rx="1" fill="#ccc"/><text x="23" y="26" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text></svg>
-        <span>Texto arriba</span>
-      </div>
-      <div class="lo" onclick="setLayout(this,'bottom')">
-        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="44" height="16" rx="1" fill="#ccc"/><text x="23" y="11" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text><rect x="1" y="20" width="44" height="12" rx="1" fill="#111"/><text x="23" y="29" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text></svg>
-        <span>Texto abajo</span>
-      </div>
-      <div class="lo" onclick="setLayout(this,'left')">
-        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="20" height="32" rx="1" fill="#ccc"/><text x="11" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text><rect x="25" y="1" width="20" height="32" rx="1" fill="#111"/><text x="35" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text></svg>
-        <span>Foto izq.</span>
-      </div>
-      <div class="lo" onclick="setLayout(this,'right')">
-        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="20" height="32" rx="1" fill="#111"/><text x="11" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text><rect x="25" y="1" width="20" height="32" rx="1" fill="#ccc"/><text x="35" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text></svg>
-        <span>Foto der.</span>
+    <!-- ② MENSAJE -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">✍️</span><span class="acc-label">Texto y mensaje</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="mini-label">Mensaje principal</div>
+        <div class="msg-list" id="msgList"></div>
+        <button class="btn-add" onclick="startAdd()">+ Agregar mensaje</button>
+        <div class="msg-editor" id="msgEditor">
+          <textarea id="msgTA" placeholder="Escribe el mensaje…"></textarea>
+          <div class="msg-editor-btns">
+            <button class="me-cancel" onclick="cancelEdit()">Cancelar</button>
+            <button class="me-save" onclick="saveEdit()">Guardar</button>
+          </div>
+        </div>
+        <div class="mini-label" style="margin-top:10px;">Subtítulo / 2da línea</div>
+        <input type="text" id="subtituloInput" placeholder="Ej: CON TODO MI AMOR ❤" class="sub-input">
+        <div class="mini-label" style="margin-top:10px;">Tipografía</div>
+        <div class="fg">
+          <div class="fo active" onclick="setFont(this,'Montserrat','sans-serif',900)"><div class="fo-s" style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;">AMOR</div><div class="fo-n">Montserrat</div></div>
+          <div class="fo" onclick="setFont(this,'Bebas Neue','sans-serif',400)"><div class="fo-s" style="font-family:'Bebas Neue',sans-serif;font-size:14px;">AMOR</div><div class="fo-n">Bebas Neue</div></div>
+          <div class="fo" onclick="setFont(this,'Oswald','sans-serif',700)"><div class="fo-s" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;">AMOR</div><div class="fo-n">Oswald</div></div>
+          <div class="fo" onclick="setFont(this,'Arial Black','sans-serif',900)"><div class="fo-s" style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:11px;">AMOR</div><div class="fo-n">Arial Black</div></div>
+          <div class="fo" onclick="setFont(this,'Georgia','serif',700)"><div class="fo-s" style="font-family:'Georgia',serif;font-weight:700;font-size:13px;">Amor</div><div class="fo-n">Georgia</div></div>
+          <div class="fo" onclick="setFont(this,'Playfair Display','serif',900)"><div class="fo-s" style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;">AMOR</div><div class="fo-n">Playfair</div></div>
+          <div class="fo" onclick="setFont(this,'Cormorant Garamond','serif',700)"><div class="fo-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;">Amor</div><div class="fo-n">Cormorant</div></div>
+          <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)"><div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div><div class="fo-n">Dancing</div></div>
+          <div class="fo" onclick="setFont(this,'Great Vibes','cursive',400)"><div class="fo-s" style="font-family:'Great Vibes',cursive;font-weight:400;font-size:16px;">Amor</div><div class="fo-n">Great Vibes</div></div>
+          <div class="fo" onclick="setFont(this,'Sacramento','cursive',400)"><div class="fo-s" style="font-family:'Sacramento',cursive;font-weight:400;font-size:15px;">Amor</div><div class="fo-n">Sacramento</div></div>
+          <div class="fo" onclick="setFont(this,'Pacifico','cursive',400)"><div class="fo-s" style="font-family:'Pacifico',cursive;font-weight:400;font-size:12px;">Amor</div><div class="fo-n">Pacifico</div></div>
+          <div class="fo" onclick="setFont(this,'Lobster','cursive',400)"><div class="fo-s" style="font-family:'Lobster',cursive;font-weight:400;font-size:13px;">Amor</div><div class="fo-n">Lobster</div></div>
+        </div>
+        <div class="mini-label" style="margin-top:10px;">Tamaño del texto</div>
+        <div class="slider-control">
+          <label>Tamaño: <span id="fontSizeValue" class="slider-value">50%</span></label>
+          <input type="range" id="fontSizeSlider" min="0" max="100" value="50" step="5">
+        </div>
+        <div class="mini-label" style="margin-top:10px;">Alineación</div>
+        <div class="tc-row">
+          <div class="tcc align-opt active" data-align="center">📐 Centrado</div>
+          <div class="tcc align-opt" data-align="left">⬅ Izquierda</div>
+        </div>
+        <div class="mini-label" style="margin-top:10px;">Color de letras</div>
+        <div class="tc-row" id="palTexto"></div>
       </div>
     </div>
+
+    <!-- ③ DISEÑO -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">🎨</span><span class="acc-label">Diseño y colores</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="mini-label">Color de fondo</div>
+        <div class="pal20" id="palFondo"></div>
+        <div class="mini-label" style="margin-top:10px;">Patrón / textura de fondo</div>
+        <div id="patronRow" class="pat-row"></div>
+        <div class="mini-label" style="margin-top:10px;">Forma de la tarjeta</div>
+        <div class="lg">
+          <div class="lo active" onclick="setLayout(this,'top')">
+            <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="44" height="12" rx="1" fill="#111"/><text x="23" y="9.5" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text><rect x="1" y="16" width="44" height="16" rx="1" fill="#ccc"/><text x="23" y="26" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text></svg>
+            <span>Texto arriba</span>
+          </div>
+          <div class="lo" onclick="setLayout(this,'bottom')">
+            <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="44" height="16" rx="1" fill="#ccc"/><text x="23" y="11" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text><rect x="1" y="20" width="44" height="12" rx="1" fill="#111"/><text x="23" y="29" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text></svg>
+            <span>Texto abajo</span>
+          </div>
+          <div class="lo" onclick="setLayout(this,'left')">
+            <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="20" height="32" rx="1" fill="#ccc"/><text x="11" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text><rect x="25" y="1" width="20" height="32" rx="1" fill="#111"/><text x="35" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text></svg>
+            <span>Foto izq.</span>
+          </div>
+          <div class="lo" onclick="setLayout(this,'right')">
+            <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="20" height="32" rx="1" fill="#111"/><text x="11" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text><rect x="25" y="1" width="20" height="32" rx="1" fill="#ccc"/><text x="35" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text></svg>
+            <span>Foto der.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ MARCO -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">🖼</span><span class="acc-label">Marco exterior</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="mini-label">Color del marco</div>
+        <div class="pal20" id="palMarco"></div>
+        <div class="mini-label" style="margin-top:10px;">Tamaño del marco</div>
+        <div class="slider-control">
+          <label>Ancho: <span id="marcoSizeValue" class="slider-value">16px</span></label>
+          <input type="range" id="marcoSizeSlider" min="4" max="40" value="16" step="1">
+        </div>
+        <div class="mini-label" style="margin-top:10px;">Decoración del marco</div>
+        <div id="marcoDecoRow" class="pat-row"></div>
+      </div>
+    </div>
+
+    <!-- ⑤ TAMAÑO TARJETA -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">📐</span><span class="acc-label">Tamaño de tarjeta</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="slider-control">
+          <label>Ancho: <span id="cardWidthValue" class="slider-value">460px</span></label>
+          <input type="range" id="cardWidthSlider" min="280" max="700" value="460" step="10">
+          <div style="font-size:8px;color:#888;margin-top:3px;">← Pequeña | Grande →</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ STICKERS -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">✨</span><span class="acc-label">Stickers decorativos</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div id="stickerRow" class="sticker-row"></div>
+        <button class="btn-add" onclick="clearStickers()" style="margin-top:6px;">✕ Limpiar stickers</button>
+        <div style="font-size:9px;color:#aaa;margin-top:4px;">Toca para agregar · Arrastra para mover · Doble clic para borrar</div>
+      </div>
+    </div>
+
+    <!-- ⑦ HISTORIAL -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">💾</span><span class="acc-label">Historial</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div id="historyList" class="history-list"></div>
+        <button class="btn-add" onclick="saveToHistory()" style="margin-top:6px;">💾 Guardar en historial</button>
+      </div>
+    </div>
+
+    <!-- ⑧ EXPORTAR -->
+    <div class="acc-section">
+      <button class="acc-btn" onclick="toggleAcc(this)">
+        <span class="acc-icon">⬇️</span><span class="acc-label">Exportar</span><span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <button class="btn btn-gen" onclick="render()">✨ Actualizar tarjeta</button>
+        <button class="btn btn-wa" onclick="shareWhatsApp()">📲 Compartir por WhatsApp</button>
+        <button class="btn btn-dl" onclick="download()">⬇ Descargar PNG</button>
+      </div>
+    </div>
+
+  </div><!-- /panel -->
+
+  <!-- PREVIEW -->
+  <div class="preview">
+    <div id="cardWrap"></div>
   </div>
 
-  <!-- 16. HISTORIAL -->
-  <div>
-    <div class="st"><span class="n">16</span>Historial de tarjetas</div>
-    <div id="historyList" class="history-list"></div>
-    <button class="btn-add" onclick="saveToHistory()" style="margin-top:4px;">💾 Guardar en historial</button>
-  </div>
-
-  <!-- 17. EXPORTAR -->
-  <div>
-    <div class="st"><span class="n">17</span>Exportar</div>
-    <button class="btn btn-gen" onclick="render()">✨ Actualizar tarjeta</button>
-    <button class="btn btn-wa" onclick="shareWhatsApp()">📲 Compartir por WhatsApp</button>
-    <button class="btn btn-dl" onclick="download()">⬇ Descargar PNG</button>
-  </div>
-
-</div>
-
-<!-- PREVIEW -->
-<div class="preview">
-  <div id="cardWrap"></div>
-</div>
-</div>
+</div><!-- /app -->
 
 <script src="app.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>

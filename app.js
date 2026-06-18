@@ -404,8 +404,8 @@ function render(){
   const tc=texto.c;
   const msg=MSGS[selMsg]||'';
   const ta=textAlign==='left'?'left':'center';
-  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:pre-wrap;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
-  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:pre-wrap;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
   const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 
   // Foto compatible con html2canvas (sin object-fit ni transform)
@@ -414,7 +414,7 @@ function render(){
     const zs=photoZoom/100;
     const ml=(photoX-50)*0.5;
     const mt=(photoY-50)*0.5;
-    photoInner=`<div style="width:100%;height:100%;overflow:hidden;position:relative;"><img src="${imgSrc}" alt="" style="position:absolute;width:${100*zs}%;height:${100*zs}%;left:${50-photoX*zs}%;top:${50-photoY*zs}%;margin-left:${ml}%;margin-top:${mt}%;"></div>`;
+    photoInner=`<div style="width:100%;height:100%;overflow:hidden;position:relative;"><img src="${imgSrc}" alt="" style="position:absolute;width:${100*zs}%;height:${100*zs}%;left:${photoX}%;top:${photoY}%;transform:translate(-${photoX}%,-${photoY}%);"></div>`;
   } else {
     photoInner=`<div style="width:100%;height:100%;background:#e8e0d4;text-align:center;padding-top:30px;font-size:32px;color:#aaa;">&#9633;</div>`;
   }

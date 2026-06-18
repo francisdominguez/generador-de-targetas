@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════
-   GENERADOR DE TARJETAS — app.js v3.2
-   Corrección de desborde de texto en PNG
+   GENERADOR DE TARJETAS — app.js v4.0
+   Renderizado con position:absolute para html2canvas
 ══════════════════════════════════════ */
 
 /* ── DATOS ── */
@@ -375,16 +375,19 @@ function shareWhatsApp(){
   });
 }
 
-/* ── RENDER (CORREGIDO) ── */
+/* ── RENDER (NUEVO: POSITION:ABSOLUTE) ── */
 function render() {
   const W = cardWidth;
   const isLR = layout === 'left' || layout === 'right';
   const fotoFactor = fotoSize / 100;
+
+  // Dimensiones de la foto
   const photoPadding = Math.floor(6 + (1 - fotoFactor) * 34);
   const photoHeight = Math.floor(100 + fotoFactor * 120);
   const photoWidthPx = Math.floor(W * (0.30 + fotoFactor * 0.25));
   const photoPaddingLR = Math.floor(8 + (1 - fotoFactor) * 25);
   const textPadding = Math.floor(16 + (1 - fotoFactor) * 12);
+
   const fontScale = 0.6 + (fontSize / 100) * 1.0;
   const baseSz = isLR ? 13 : 14.5;
   const tsz = (baseSz * fontScale).toFixed(1);
@@ -456,58 +459,86 @@ function render() {
     bgStyle = `background-color:${fondo.c};background-image:${patCSS};`;
   }
 
+  // Construir el layout con posicionamiento absoluto
   let innerHTML = '';
 
   if (!isLR) {
-    // Layout TOP / BOTTOM (apilados)
+    // TOP / BOTTOM
     const photoBlock = `
-      <div style="padding:${photoPadding}px;box-sizing:border-box;width:${W}px;${bgStyle}">
-        <div style="width:100%;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div>
+      <div style="position:absolute;left:${photoPadding}px;top:${layout === 'top' ? 'auto' : 'auto'};bottom:${layout === 'bottom' ? 'auto' : 'auto'};width:${W - photoPadding * 2}px;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
+        ${photoInner}
       </div>
     `;
+    // Texto: ocupa el resto, centrado verticalmente
     const textBlock = `
-      <div style="${bgStyle}padding:${textPadding}px 20px;box-sizing:border-box;width:${W}px;overflow:hidden;">
+      <div style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${textPadding}px 20px;box-sizing:border-box;${bgStyle}">
         <div style="${textStyle}">${msg}</div>
         ${subBlock}
       </div>
     `;
-    innerHTML = layout === 'top' ? textBlock + photoBlock : photoBlock + textBlock;
+    // Colocamos la foto encima o debajo según layout
+    if (layout === 'top') {
+      // Foto abajo, texto arriba: foto position absolute con bottom:0
+      const photoBottom = `
+        <div style="position:absolute;left:${photoPadding}px;bottom:${photoPadding}px;width:${W - photoPadding * 2}px;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
+          ${photoInner}
+        </div>
+      `;
+      const textTop = `
+        <div style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${textPadding}px 20px;box-sizing:border-box;${bgStyle}">
+          <div style="${textStyle}">${msg}</div>
+          ${subBlock}
+        </div>
+      `;
+      innerHTML = textTop + photoBottom;
+    } else {
+      // Foto arriba, texto abajo
+      const photoTop = `
+        <div style="position:absolute;left:${photoPadding}px;top:${photoPadding}px;width:${W - photoPadding * 2}px;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
+          ${photoInner}
+        </div>
+      `;
+      const textBottom = `
+        <div style="position:absolute;left:0;bottom:0;width:100%;height:${Math.max(60, W * 0.25)}px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${textPadding}px 20px;box-sizing:border-box;${bgStyle}">
+          <div style="${textStyle}">${msg}</div>
+          ${subBlock}
+        </div>
+      `;
+      innerHTML = photoTop + textBottom;
+    }
   } else {
-    // Layout LEFT / RIGHT (inline-block con anchos fijos)
-    const textWidthPx = W - photoWidthPx - (photoPaddingLR * 2) - (textPadding * 2) - 16;
-    const finalTextWidth = Math.max(textWidthPx, 80);
+    // LEFT / RIGHT
+    const photoW = photoWidthPx;
+    const photoH = Math.floor(photoWidthPx * 0.85);
+    const photoXpos = layout === 'left' ? photoPaddingLR : W - photoW - photoPaddingLR;
+    const textXpos = layout === 'left' ? photoW + photoPaddingLR + textPadding : textPadding;
+    const textW = W - photoW - photoPaddingLR * 2 - textPadding * 2 - 8;
 
-    const photoBlock = `
-      <div style="display:inline-block;vertical-align:middle;width:${photoWidthPx}px;padding:${photoPaddingLR}px;box-sizing:border-box;">
-        <div style="width:100%;height:${Math.floor(photoWidthPx * 0.85)}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div>
+    const photoAbs = `
+      <div style="position:absolute;left:${photoXpos}px;top:50%;transform:translateY(-50%);width:${photoW}px;height:${photoH}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
+        ${photoInner}
       </div>
     `;
-    const textBlock = `
-      <div style="display:inline-block;vertical-align:middle;width:${finalTextWidth}px;padding:${textPadding}px 12px;box-sizing:border-box;overflow:hidden;${bgStyle}">
+    const textAbs = `
+      <div style="position:absolute;left:${textXpos}px;top:50%;transform:translateY(-50%);width:${textW}px;padding:${textPadding}px 12px;box-sizing:border-box;${bgStyle}">
         <div style="${textStyle}">${msg}</div>
         ${subBlock}
       </div>
     `;
-
-    const containerStyle = `
-      display:block;
-      width:${W}px;
-      ${bgStyle};
-      font-size:0;
-      white-space:nowrap;
-      overflow:hidden;
-    `;
-
-    innerHTML = `
-      <div style="${containerStyle}">
-        ${layout === 'left' ? photoBlock + textBlock : textBlock + photoBlock}
-      </div>
-    `;
+    innerHTML = (layout === 'left') ? photoAbs + textAbs : textAbs + photoAbs;
   }
+
+  // Contenedor principal con position:relative y altura automática según contenido
+  const containerHeight = Math.max(photoHeight + photoPadding * 2, 200); // altura mínima
+  const finalHTML = `
+    <div style="position:relative;width:${W}px;height:${containerHeight}px;${bgStyle};overflow:hidden;">
+      ${innerHTML}
+    </div>
+  `;
 
   document.getElementById('cardWrap').innerHTML = `
     <div class="card-outer" style="position:relative;border-color:${marco.c};border-width:${marcoSize}px;border-style:solid;display:inline-block;">
-      <div style="width:${W}px;overflow:hidden;${bgStyle}">${innerHTML}</div>
+      ${finalHTML}
     </div>`;
 
   renderStickersUI();

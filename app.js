@@ -181,10 +181,6 @@ function applyDecoToMarco(){
 
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
   const em = emojis[marcoDeco] || '';
-  const sz = Math.max(10, Math.min(marcoSize - 2, 22));
-  const step = sz + 6;
-
-  // Usar offsetWidth/offsetHeight — no se ven afectados por transform:scale del preview
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
 
@@ -195,6 +191,10 @@ function applyDecoToMarco(){
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
+
+  const m = marcoSize / 2;  // centro del borde en cada lado
+  const sz = Math.max(8, Math.min(marcoSize * 0.7, 20));  // símbolo escala con el marco
+  const step = sz + Math.max(4, marcoSize * 0.4);         // paso también escala
 
   function addSym(x, y){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
@@ -208,11 +208,12 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  const m = marcoSize / 2;
+  // Top y bottom: centrados verticalmente en el grosor del borde
   for(let x = step; x < W - step/2; x += step) addSym(x, m);
   for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
-  for(let y = step; y < H - step/2; y += step) addSym(m, y);
-  for(let y = step; y < H - step/2; y += step) addSym(W - m, y);
+  // Left y right: centrados horizontalmente en el grosor del borde
+  for(let y = step + m; y < H - step/2 - m; y += step) addSym(m, y);
+  for(let y = step + m; y < H - step/2 - m; y += step) addSym(W - m, y);
 
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);

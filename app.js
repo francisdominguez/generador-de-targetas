@@ -521,3 +521,18 @@ buildStickers();
 buildHistory();
 initSliders();
 render();
+
+/* ── TABS ── */
+function switchTab(btn, tabId) {
+  // Deactivate all tabs and panels
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  // Activate selected
+  btn.classList.add('active');
+  const panel = document.getElementById('panel-' + tabId);
+  if (panel) {
+    panel.classList.add('active');
+    // Scroll panel to top on tab switch
+    document.querySelector('.tab-panels').scrollTop = 0;
+  }
+}

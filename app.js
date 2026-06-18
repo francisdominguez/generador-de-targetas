@@ -190,7 +190,7 @@ function applyDecoToMarco(){
   svg.setAttribute('class','marco-deco');
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   // El SVG se posiciona desde -marcoSize para cubrir el borde desde afuera
-  svg.style.cssText=`position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:hidden;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)';

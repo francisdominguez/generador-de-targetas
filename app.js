@@ -182,18 +182,15 @@ function applyDecoToMarco(){
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
   const em = emojis[marcoDeco] || '';
 
-  // clientWidth/Height = tamaño interno sin borde
-  // offsetWidth/Height = tamaño total con borde
-  const Wc = cardOuter.clientWidth;
-  const Hc = cardOuter.clientHeight;
+  // offsetWidth/Height incluye el borde — es el tamaño total externo
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  // SVG cubre el area interna, pero dibujamos en coordenadas negativas para el borde
-  svg.setAttribute('viewBox',`${-marcoSize} ${-marcoSize} ${W} ${H}`);
-  svg.style.cssText=`position:absolute;top:0;left:0;width:${Wc}px;height:${Hc}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  // El SVG se posiciona desde -marcoSize para cubrir el borde desde afuera
+  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:hidden;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)';

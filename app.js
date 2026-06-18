@@ -163,20 +163,66 @@ function buildMarcosDeco(){
 }
 
 function getDecoOverlay(id, w, h, color){
-  if(id==='none') return '';
+  // Esta función ya no se usa — la decoración se aplica via applyDecoToMarco()
+  return '';
+}
+
+function applyDecoToMarco(){
+  // Aplica decoración SOBRE el marco exterior (el borde de color)
+  const cardOuter = document.querySelector('#cardWrap .card-outer');
+  if(!cardOuter) return;
+
+  // Eliminar deco anterior
+  const prev = cardOuter.querySelector('.marco-deco');
+  if(prev) prev.remove();
+
+  if(marcoDeco === 'none') return;
+
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
-  const em = emojis[id]||'';
-  const step = 32;
-  let items = '';
-  // Top row
-  for(let x=step/2;x<w;x+=step){ items+=`<text x="${x}" y="14" text-anchor="middle" font-size="14" fill="${color}" opacity="0.85">${em}</text>`; }
-  // Bottom row
-  for(let x=step/2;x<w;x+=step){ items+=`<text x="${x}" y="${h-4}" text-anchor="middle" font-size="14" fill="${color}" opacity="0.85">${em}</text>`; }
-  // Left col
-  for(let y=step;y<h-step;y+=step){ items+=`<text x="10" y="${y}" text-anchor="middle" font-size="14" fill="${color}" opacity="0.85">${em}</text>`; }
-  // Right col
-  for(let y=step;y<h-step;y+=step){ items+=`<text x="${w-10}" y="${y}" text-anchor="middle" font-size="14" fill="${color}" opacity="0.85">${em}</text>`; }
-  return `<svg style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:5;" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${items}</svg>`;
+  const em = emojis[marcoDeco] || '';
+
+  // Tamaño del símbolo según marcoSize
+  const sz = Math.max(10, Math.min(marcoSize - 2, 22));
+  const step = sz + 6;
+
+  const rect = cardOuter.getBoundingClientRect();
+  const W = rect.width;
+  const H = rect.height;
+
+  // Crear capa SVG que cubre TODO el card-outer (incluyendo el borde)
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('class','marco-deco');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
+
+  // Color del símbolo: contraste con el color del marco
+  const light = isLight(marco.c);
+  const symColor = light ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.85)';
+
+  function addSym(x, y){
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', y);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('dominant-baseline','central');
+    t.setAttribute('font-size', sz);
+    t.setAttribute('fill', symColor);
+    t.textContent = em;
+    svg.appendChild(t);
+  }
+
+  const m = marcoSize / 2; // centro del borde
+  // Fila superior
+  for(let x = step; x < W - step/2; x += step) addSym(x, m);
+  // Fila inferior
+  for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
+  // Col izquierda
+  for(let y = step; y < H - step/2; y += step) addSym(m, y);
+  // Col derecha
+  for(let y = step; y < H - step/2; y += step) addSym(W - m, y);
+
+  cardOuter.style.position = 'relative';
+  cardOuter.appendChild(svg);
 }
 
 /* ── STICKERS ── */
@@ -352,9 +398,7 @@ function render(){
     bgStyle=`background-color:${fondo.c};background-image:${patCSS};`;
   }
 
-  // Decoración marco
-  const decoColor = isLight(marco.c)?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.7)';
-  const decoOverlay = getDecoOverlay(marcoDeco, W, 300, decoColor);
+  // Decoración marco — se aplica después del render vía applyDecoToMarco()
 
   let innerHTML='';
   if(!isLR){
@@ -371,11 +415,12 @@ function render(){
     <div class="card-outer" style="position:relative;border-color:${marco.c};border-width:${marcoSize}px;border-style:solid;">
       <div class="card-inner" style="${bgStyle}width:${W}px;">
         ${innerHTML}
-        ${decoOverlay}
       </div>
     </div>`;
 
   renderStickersUI();
+  // Aplicar decoración sobre el marco (necesita que el DOM esté listo)
+  setTimeout(applyDecoToMarco, 10);
 }
 
 /* ── DOWNLOAD ── */

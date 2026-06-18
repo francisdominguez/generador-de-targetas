@@ -1,6 +1,5 @@
 /* ══════════════════════════════════════
-   GENERADOR DE TARJETAS — app.js v4.0
-   Renderizado con position:absolute para html2canvas
+   GENERADOR DE TARJETAS — app.js v3.0
 ══════════════════════════════════════ */
 
 /* ── DATOS ── */
@@ -78,12 +77,12 @@ let marcoDeco = 'none';
 let darkMode = false;
 let editIdx = -1;
 let cardHistory = JSON.parse(localStorage.getItem('cardHistory')||'[]');
-let placedStickers = [];
-let cardWidth = 460;
-let photoFit = 'cover';
-let photoZoom = 100;
-let photoX = 50;
-let photoY = 50;
+let placedStickers = []; // [{emoji, x, y, id}]
+let cardWidth = 460;      // ancho tarjeta
+let photoFit = 'cover';   // 'cover' o 'contain'
+let photoZoom = 100;      // zoom % de la foto (100 = normal)
+let photoX = 50;          // posición horizontal % (50 = centro)
+let photoY = 50;          // posición vertical % (50 = centro)
 let dragSticker = null;
 
 /* ── MENSAJES ── */
@@ -141,6 +140,7 @@ function buildPatrones(){
 }
 
 function getPatternCSS(id, bg){
+  const c = marco.c;
   const light = isLight(bg);
   const lineC = light ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)';
   switch(id){
@@ -148,7 +148,7 @@ function getPatternCSS(id, bg){
     case 'stripes': return `repeating-linear-gradient(0deg, ${lineC} 0px, ${lineC} 1px, transparent 1px, transparent 16px)`;
     case 'diagonal': return `repeating-linear-gradient(45deg, ${lineC} 0px, ${lineC} 1px, transparent 1px, transparent 14px)`;
     case 'grid': return `linear-gradient(${lineC} 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, ${lineC} 1px, transparent 1px) 0 0 / 18px 18px`;
-    case 'hearts': return null;
+    case 'hearts': return null; // SVG inline
     case 'grad-pink': return `linear-gradient(135deg, #fde8ec 0%, #f0e0f0 100%)`;
     case 'grad-blue': return `linear-gradient(135deg, #dce8f5 0%, #dcdcf5 100%)`;
     case 'grad-gold': return `linear-gradient(135deg, #fef4d0 0%, #f5e6c8 100%)`;
@@ -167,6 +167,11 @@ function buildMarcosDeco(){
   });
 }
 
+function getDecoOverlay(id, w, h, color){
+  // Esta función ya no se usa — la decoración se aplica via applyDecoToMarco()
+  return '';
+}
+
 function applyDecoToMarco(){
   const cardOuter = document.querySelector('#cardWrap .card-outer');
   if(!cardOuter) return;
@@ -179,6 +184,7 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
+  // Usar offsetWidth/offsetHeight — no se ven afectados por transform:scale del preview
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
 
@@ -230,6 +236,7 @@ function addSticker(em){
 
 function renderStickersUI(){
   const wrap=document.getElementById('cardWrap');
+  // Remove old sticker layer
   const old=wrap.querySelector('.sticker-layer');
   if(old) old.remove();
   if(!placedStickers.length) return;
@@ -245,6 +252,7 @@ function renderStickersUI(){
     s.style.cssText=`position:absolute;left:${sk.x}px;top:${sk.y}px;font-size:28px;cursor:move;user-select:none;pointer-events:all;transform:translate(-50%,-50%);`;
     s.title='Arrastrar · Doble clic para borrar';
 
+    // Drag
     let dragging=false, ox=0, oy=0;
     s.addEventListener('mousedown',e=>{ dragging=true; const r=wrap.getBoundingClientRect(); ox=e.clientX-r.left-sk.x; oy=e.clientY-r.top-sk.y; e.preventDefault(); });
     s.addEventListener('touchstart',e=>{ dragging=true; const r=wrap.getBoundingClientRect(); const t=e.touches[0]; ox=t.clientX-r.left-sk.x; oy=t.clientY-r.top-sk.y; e.preventDefault(); },{passive:false});
@@ -270,12 +278,14 @@ function initSliders(){
   document.getElementById('fontSizeSlider').addEventListener('input',e=>{ fontSize=parseInt(e.target.value); document.getElementById('fontSizeValue').textContent=fontSize+'%'; render(); });
   document.getElementById('subtituloInput').addEventListener('input',e=>{ subtitulo=e.target.value.toUpperCase(); render(); });
 
+  // Tamaño tarjeta
   document.getElementById('cardWidthSlider').addEventListener('input',e=>{
     cardWidth=parseInt(e.target.value);
     document.getElementById('cardWidthValue').textContent=cardWidth+'px';
     render();
   });
 
+  // Controles foto
   document.getElementById('photoFitBtn').addEventListener('click',()=>{
     photoFit = photoFit==='cover' ? 'contain' : 'cover';
     document.getElementById('photoFitBtn').textContent = photoFit==='cover' ? '✂️ Recortar (cover)' : '🖼 Completa (contain)';
@@ -335,6 +345,7 @@ function buildHistory(){
 }
 function delHistory(e,i){ e.stopPropagation(); cardHistory.splice(i,1); localStorage.setItem('cardHistory',JSON.stringify(cardHistory)); buildHistory(); }
 function loadSnap(s){
+  // Restaurar estado
   marco=MARCOS.find(x=>x.c===s.marco)||MARCOS[0];
   fondo=FONDOS.find(x=>x.c===s.fondo)||FONDOS[0];
   texto=TEXTOS.find(x=>x.c===s.texto)||TEXTOS[0];
@@ -367,6 +378,7 @@ function shareWhatsApp(){
       if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],'tarjeta.png',{type:'image/png'})]})){
         navigator.share({ files:[new File([blob],'tarjeta.png',{type:'image/png'})], title:'Mi tarjeta', text:'Mira esta tarjeta que hice ❤️' }).catch(()=>{});
       } else {
+        // Fallback: abrir WhatsApp web
         const url=encodeURIComponent('Mira esta tarjeta que hice con el Generador de Tarjetas ❤️');
         window.open(`https://wa.me/?text=${url}`,'_blank');
         showToast('💡 Descarga la imagen y adjúntala en WhatsApp');
@@ -375,173 +387,64 @@ function shareWhatsApp(){
   });
 }
 
-/* ── RENDER (NUEVO: POSITION:ABSOLUTE) ── */
-function render() {
-  const W = cardWidth;
-  const isLR = layout === 'left' || layout === 'right';
-  const fotoFactor = fotoSize / 100;
+/* ── RENDER ── */
+function render(){
+  const W=cardWidth;
+  const isLR=layout==='left'||layout==='right';
+  const fotoFactor=fotoSize/100;
+  const photoPadding=Math.floor(6+(1-fotoFactor)*34);
+  const photoHeight=Math.floor(100+fotoFactor*120);
+  const photoWidthPx=Math.floor(W*(0.30+fotoFactor*0.25));
+  const photoPaddingLR=Math.floor(8+(1-fotoFactor)*25);
+  const textPadding=Math.floor(16+(1-fotoFactor)*12);
+  const fontScale=0.6+(fontSize/100)*1.0;
+  const baseSz=isLR?13:14.5;
+  const tsz=(baseSz*fontScale).toFixed(1);
+  const subSz=((baseSz*fontScale)*0.68).toFixed(1);
+  const tc=texto.c;
+  const msg=MSGS[selMsg]||'';
+  const ta=textAlign==='left'?'left':'center';
+  const textWpx = isLR ? (W - Math.floor(W*(0.30+fotoFactor*0.25))) - (textPadding*2) - 32 : W - 40;
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-all;white-space:normal;overflow-wrap:break-word;display:block;width:${textWpx}px;max-width:${textWpx}px;box-sizing:border-box;`;
+  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-all;white-space:normal;overflow-wrap:break-word;display:block;width:${textWpx}px;max-width:${textWpx}px;box-sizing:border-box;`;
+  const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 
-  // Dimensiones de la foto
-  const photoPadding = Math.floor(6 + (1 - fotoFactor) * 34);
-  const photoHeight = Math.floor(100 + fotoFactor * 120);
-  const photoWidthPx = Math.floor(W * (0.30 + fotoFactor * 0.25));
-  const photoPaddingLR = Math.floor(8 + (1 - fotoFactor) * 25);
-  const textPadding = Math.floor(16 + (1 - fotoFactor) * 12);
-
-  const fontScale = 0.6 + (fontSize / 100) * 1.0;
-  const baseSz = isLR ? 13 : 14.5;
-  const tsz = (baseSz * fontScale).toFixed(1);
-  const subSz = ((baseSz * fontScale) * 0.68).toFixed(1);
-  const tc = texto.c;
-  const msg = MSGS[selMsg] || '';
-  const ta = textAlign === 'left' ? 'left' : 'center';
-
-  // Estilos para el texto (con word-break forzado)
-  const textStyle = `
-    font-family:'${fontFam}',${fontGen};
-    font-size:${tsz}px;
-    color:${tc};
-    font-weight:${fontWt};
-    line-height:1.45;
-    letter-spacing:0;
-    text-transform:uppercase;
-    text-align:${ta};
-    word-break:break-word;
-    overflow-wrap:break-word;
-    white-space:normal;
-    display:block;
-    width:100%;
-    max-width:100%;
-    box-sizing:border-box;
-  `;
-
-  const subStyle = `
-    font-family:'${fontFam}',${fontGen};
-    font-size:${subSz}px;
-    color:${tc};
-    font-weight:${fontWt >= 700 ? 400 : fontWt};
-    line-height:1.4;
-    letter-spacing:0;
-    text-transform:uppercase;
-    text-align:${ta};
-    opacity:.75;
-    margin-top:8px;
-    word-break:break-word;
-    overflow-wrap:break-word;
-    white-space:normal;
-    display:block;
-    width:100%;
-    max-width:100%;
-    box-sizing:border-box;
-  `;
-
-  const subBlock = subtitulo ? `<div style="${subStyle}">${subtitulo}</div>` : '';
-
-  // Foto
-  let photoInner = '';
-  if (imgSrc) {
-    const zs = photoZoom / 100;
-    photoInner = `
-      <div style="width:100%;height:100%;overflow:hidden;position:relative;">
-        <img src="${imgSrc}" alt="" style="position:absolute;width:${100 * zs}%;height:${100 * zs}%;left:${photoX * (1 - zs)}%;top:${photoY * (1 - zs)}%;">
-      </div>
-    `;
+  // Foto compatible con html2canvas (sin object-fit ni transform)
+  let photoInner='';
+  if(imgSrc){
+    const zs=photoZoom/100;
+    const ml=(photoX-50)*0.5;
+    const mt=(photoY-50)*0.5;
+    photoInner=`<div style="width:100%;height:100%;overflow:hidden;position:relative;"><img src="${imgSrc}" alt="" style="position:absolute;width:${100*zs}%;height:${100*zs}%;left:${photoX*(1-zs)}%;top:${photoY*(1-zs)}%;"></div>`;
   } else {
-    photoInner = `<div style="width:100%;height:100%;background:#e8e0d4;text-align:center;padding-top:30px;font-size:32px;color:#aaa;">&#9633;</div>`;
+    photoInner=`<div style="width:100%;height:100%;background:#e8e0d4;text-align:center;padding-top:30px;font-size:32px;color:#aaa;">&#9633;</div>`;
   }
 
-  // Fondo / patrón
-  let bgStyle = `background:${fondo.c};`;
-  const patCSS = getPatternCSS(patron, fondo.c);
-  if (patCSS && patron.startsWith('grad-')) {
-    bgStyle = `background:${patCSS};`;
-  } else if (patCSS) {
-    bgStyle = `background-color:${fondo.c};background-image:${patCSS};`;
-  }
+  // Fondo / patron
+  let bgStyle=`background:${fondo.c};`;
+  const patCSS=getPatternCSS(patron,fondo.c);
+  if(patCSS&&patron.startsWith('grad-')){bgStyle=`background:${patCSS};`;}
+  else if(patCSS){bgStyle=`background-color:${fondo.c};background-image:${patCSS};`;}
 
-  // Construir el layout con posicionamiento absoluto
-  let innerHTML = '';
-
-  if (!isLR) {
-    // TOP / BOTTOM
-    const photoBlock = `
-      <div style="position:absolute;left:${photoPadding}px;top:${layout === 'top' ? 'auto' : 'auto'};bottom:${layout === 'bottom' ? 'auto' : 'auto'};width:${W - photoPadding * 2}px;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
-        ${photoInner}
-      </div>
-    `;
-    // Texto: ocupa el resto, centrado verticalmente
-    const textBlock = `
-      <div style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${textPadding}px 20px;box-sizing:border-box;${bgStyle}">
-        <div style="${textStyle}">${msg}</div>
-        ${subBlock}
-      </div>
-    `;
-    // Colocamos la foto encima o debajo según layout
-    if (layout === 'top') {
-      // Foto abajo, texto arriba: foto position absolute con bottom:0
-      const photoBottom = `
-        <div style="position:absolute;left:${photoPadding}px;bottom:${photoPadding}px;width:${W - photoPadding * 2}px;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
-          ${photoInner}
-        </div>
-      `;
-      const textTop = `
-        <div style="position:absolute;left:0;top:0;width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${textPadding}px 20px;box-sizing:border-box;${bgStyle}">
-          <div style="${textStyle}">${msg}</div>
-          ${subBlock}
-        </div>
-      `;
-      innerHTML = textTop + photoBottom;
-    } else {
-      // Foto arriba, texto abajo
-      const photoTop = `
-        <div style="position:absolute;left:${photoPadding}px;top:${photoPadding}px;width:${W - photoPadding * 2}px;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
-          ${photoInner}
-        </div>
-      `;
-      const textBottom = `
-        <div style="position:absolute;left:0;bottom:0;width:100%;height:${Math.max(60, W * 0.25)}px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:${textPadding}px 20px;box-sizing:border-box;${bgStyle}">
-          <div style="${textStyle}">${msg}</div>
-          ${subBlock}
-        </div>
-      `;
-      innerHTML = photoTop + textBottom;
-    }
+  let innerHTML='';
+  if(!isLR){
+    const photoBlock=`<div style="padding:${photoPadding}px;box-sizing:border-box;width:${W}px;${bgStyle}"><div style="width:100%;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div></div>`;
+    const textBlock=`<div style="${bgStyle}padding:${textPadding}px 20px;box-sizing:border-box;width:${W}px;"><div style="${fstyle}">${msg}</div>${subBlock}</div>`;
+    innerHTML=layout==='top'?textBlock+photoBlock:photoBlock+textBlock;
   } else {
-    // LEFT / RIGHT
-    const photoW = photoWidthPx;
-    const photoH = Math.floor(photoWidthPx * 0.85);
-    const photoXpos = layout === 'left' ? photoPaddingLR : W - photoW - photoPaddingLR;
-    const textXpos = layout === 'left' ? photoW + photoPaddingLR + textPadding : textPadding;
-    const textW = W - photoW - photoPaddingLR * 2 - textPadding * 2 - 8;
-
-    const photoAbs = `
-      <div style="position:absolute;left:${photoXpos}px;top:50%;transform:translateY(-50%);width:${photoW}px;height:${photoH}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">
-        ${photoInner}
-      </div>
-    `;
-    const textAbs = `
-      <div style="position:absolute;left:${textXpos}px;top:50%;transform:translateY(-50%);width:${textW}px;padding:${textPadding}px 12px;box-sizing:border-box;${bgStyle}">
-        <div style="${textStyle}">${msg}</div>
-        ${subBlock}
-      </div>
-    `;
-    innerHTML = (layout === 'left') ? photoAbs + textAbs : textAbs + photoAbs;
+    const textWidthPx=W-photoWidthPx;
+    const photoCell=`<div style="display:table-cell;width:${photoWidthPx}px;vertical-align:middle;padding:${photoPaddingLR}px;box-sizing:border-box;"><div style="width:100%;height:${Math.floor(photoWidthPx*0.85)}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div></div>`;
+    const textCell=`<div style="${bgStyle}display:table-cell;width:${textWidthPx}px;vertical-align:middle;padding:${textPadding}px 16px;box-sizing:border-box;"><div style="${fstyle}">${msg}</div>${subBlock}</div>`;
+    innerHTML=`<div style="display:table;width:${W}px;table-layout:fixed;${bgStyle}">${layout==='left'?photoCell+textCell:textCell+photoCell}</div>`;
   }
 
-  // Contenedor principal con position:relative y altura automática según contenido
-  const containerHeight = Math.max(photoHeight + photoPadding * 2, 200); // altura mínima
-  const finalHTML = `
-    <div style="position:relative;width:${W}px;height:${containerHeight}px;${bgStyle};overflow:hidden;">
-      ${innerHTML}
-    </div>
-  `;
-
-  document.getElementById('cardWrap').innerHTML = `
+  document.getElementById('cardWrap').innerHTML=`
     <div class="card-outer" style="position:relative;border-color:${marco.c};border-width:${marcoSize}px;border-style:solid;display:inline-block;">
-      ${finalHTML}
+      <div style="width:${W}px;overflow:hidden;${bgStyle}">${innerHTML}</div>
     </div>`;
 
   renderStickersUI();
+  // Aplicar decoración sobre el marco (necesita que el DOM esté listo)
   setTimeout(applyDecoToMarco, 10);
 }
 
@@ -555,6 +458,8 @@ function download(){
   html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(canvas=>{
     canvas.toBlob(async blob=>{
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
+
+      // Móvil: intentar compartir/guardar en galería con Web Share API
       if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
         try{
           await navigator.share({
@@ -564,9 +469,11 @@ function download(){
           });
           showToast('✅ Imagen guardada / compartida');
         } catch(e){
+          // Usuario canceló el share — igual ofrecer descarga normal
           if(e.name !== 'AbortError') fallbackDownload(canvas);
         }
       } else {
+        // Desktop o navegador sin soporte: descarga directa
         fallbackDownload(canvas);
       }
       btn.textContent='⬇ Descargar PNG'; btn.disabled=false;
@@ -581,6 +488,7 @@ function fallbackDownload(canvas){
   a.click();
   showToast('📥 Imagen descargada');
 }
+
 
 /* ── ACORDEÓN ── */
 function toggleAcc(btn){
@@ -605,12 +513,15 @@ render();
 
 /* ── TABS ── */
 function switchTab(btn, tabId) {
+  // Deactivate all tabs and panels
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  // Activate selected
   btn.classList.add('active');
   const panel = document.getElementById('panel-' + tabId);
   if (panel) {
     panel.classList.add('active');
+    // Scroll panel to top on tab switch
     document.querySelector('.tab-panels').scrollTop = 0;
   }
 }

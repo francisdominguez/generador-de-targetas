@@ -151,6 +151,13 @@ body.dark .slider-control label{color:#ccc;}
 .btn-dl{background:var(--gold);color:#fff;margin-bottom:0;}
 .btn-dl:hover{background:#a87520;}
 
+
+/* BOTÓN FIT */
+.fit-btn{width:100%;padding:8px;background:#f5f0e8;border:1.5px solid #111;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;margin-top:4px;}
+.fit-btn:hover{background:#111;color:#fff;}
+body.dark .fit-btn{background:#1e2a3a;color:#eee;border-color:#444;}
+body.dark .fit-btn:hover{background:#333;}
+
 /* ════ TARJETA ════ */
 .card-outer{background:transparent;border:16px solid #111;border-radius:8px;display:inline-block;box-shadow:0 12px 28px rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.06);}
 .card-inner{overflow:hidden;position:relative;}

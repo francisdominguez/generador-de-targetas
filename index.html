@@ -16,12 +16,19 @@
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/generador-de-targetas/sw.js');}</script>
 </head>
 <body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
 <header>
   <div>
     <div class="hlogo">Tarjetas <em>Blue Princess</em></div>
-    <div class="hsub">Marco ajustable · Tamaño de foto variable</div>
+    <div class="hsub">Generador de tarjetas personalizadas</div>
   </div>
-  <div class="hbadge">PNG 3× · Apto impresión</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <button id="darkBtn" onclick="toggleDark()" class="hbtn">🌙 Modo oscuro</button>
+    <div class="hbadge">PNG 3×</div>
+  </div>
 </header>
 
 <div class="app">
@@ -58,162 +65,134 @@
     <input type="text" id="subtituloInput" placeholder="Ej: CON TODO MI AMOR ❤" class="sub-input">
   </div>
 
-  <!-- 4. COLOR MARCO -->
+  <!-- 4. STICKERS -->
   <div>
-    <div class="st"><span class="n">4</span>Color marco exterior</div>
+    <div class="st"><span class="n">4</span>Stickers decorativos</div>
+    <div id="stickerRow" class="sticker-row"></div>
+    <button class="btn-add" onclick="clearStickers()" style="margin-top:4px;">✕ Limpiar stickers</button>
+    <div style="font-size:9px;color:#aaa;margin-top:3px;">Toca para agregar · Arrastra para mover · Doble clic para borrar</div>
+  </div>
+
+  <!-- 5. COLOR MARCO -->
+  <div>
+    <div class="st"><span class="n">5</span>Color marco exterior</div>
     <div class="pal20" id="palMarco"></div>
   </div>
 
-  <!-- 5. TAMAÑO MARCO -->
+  <!-- 6. TAMAÑO MARCO -->
   <div class="range-group">
-    <div class="st"><span class="n">5</span>Tamaño del marco</div>
+    <div class="st"><span class="n">6</span>Tamaño del marco</div>
     <div class="slider-control">
-      <label>Ancho del borde: <span id="marcoSizeValue" class="slider-value">16px</span></label>
+      <label>Ancho: <span id="marcoSizeValue" class="slider-value">16px</span></label>
       <input type="range" id="marcoSizeSlider" min="4" max="40" value="16" step="1">
     </div>
   </div>
 
-  <!-- 6. TAMAÑO FOTO -->
+  <!-- 7. DECORACIÓN MARCO -->
+  <div>
+    <div class="st"><span class="n">7</span>Decoración del marco</div>
+    <div id="marcoDecoRow" class="pat-row"></div>
+  </div>
+
+  <!-- 8. TAMAÑO FOTO -->
   <div class="range-group">
-    <div class="st"><span class="n">6</span>Tamaño de la foto</div>
+    <div class="st"><span class="n">8</span>Tamaño de la foto</div>
     <div class="slider-control">
-      <label>Tamaño foto: <span id="fotoSizeValue" class="slider-value">Mediana</span></label>
+      <label>Tamaño: <span id="fotoSizeValue" class="slider-value">Mediana</span></label>
       <input type="range" id="fotoSizeSlider" min="0" max="100" value="50" step="5">
     </div>
   </div>
 
-  <!-- 7. TAMAÑO TEXTO -->
+  <!-- 9. TAMAÑO TEXTO -->
   <div class="range-group">
-    <div class="st"><span class="n">7</span>Tamaño del texto</div>
+    <div class="st"><span class="n">9</span>Tamaño del texto</div>
     <div class="slider-control">
       <label>Tamaño: <span id="fontSizeValue" class="slider-value">50%</span></label>
       <input type="range" id="fontSizeSlider" min="0" max="100" value="50" step="5">
     </div>
   </div>
 
-  <!-- 8. COLOR FONDO -->
+  <!-- 10. COLOR FONDO -->
   <div>
-    <div class="st"><span class="n">8</span>Color fondo tarjeta</div>
+    <div class="st"><span class="n">10</span>Color fondo tarjeta</div>
     <div class="pal20" id="palFondo"></div>
   </div>
 
-  <!-- 9. COLOR LETRAS -->
+  <!-- 11. PATRÓN FONDO -->
   <div>
-    <div class="st"><span class="n">9</span>Color de letras</div>
+    <div class="st"><span class="n">11</span>Fondo / patrón</div>
+    <div id="patronRow" class="pat-row"></div>
+  </div>
+
+  <!-- 12. COLOR LETRAS -->
+  <div>
+    <div class="st"><span class="n">12</span>Color de letras</div>
     <div class="tc-row" id="palTexto"></div>
   </div>
 
-  <!-- 10. ALINEACIÓN -->
+  <!-- 13. ALINEACIÓN -->
   <div>
-    <div class="st"><span class="n">10</span>Alineación del texto</div>
-    <div class="tc-row" id="alignRow">
+    <div class="st"><span class="n">13</span>Alineación del texto</div>
+    <div class="tc-row">
       <div class="tcc align-opt active" data-align="center">📐 Centrado</div>
       <div class="tcc align-opt" data-align="left">⬅ Izquierda</div>
     </div>
   </div>
 
-  <!-- 11. FUENTE -->
+  <!-- 14. FUENTE -->
   <div>
-    <div class="st"><span class="n">11</span>Tipografía</div>
+    <div class="st"><span class="n">14</span>Tipografía</div>
     <div class="fg">
-      <div class="fo active" onclick="setFont(this,'Montserrat','sans-serif',900)">
-        <div class="fo-s" style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;">AMOR</div>
-        <div class="fo-n">Montserrat</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Bebas Neue','sans-serif',400)">
-        <div class="fo-s" style="font-family:'Bebas Neue',sans-serif;font-size:14px;">AMOR</div>
-        <div class="fo-n">Bebas Neue</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Oswald','sans-serif',700)">
-        <div class="fo-s" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;">AMOR</div>
-        <div class="fo-n">Oswald</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Arial Black','sans-serif',900)">
-        <div class="fo-s" style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:11px;">AMOR</div>
-        <div class="fo-n">Arial Black</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Georgia','serif',700)">
-        <div class="fo-s" style="font-family:'Georgia',serif;font-weight:700;font-size:13px;">Amor</div>
-        <div class="fo-n">Georgia</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Playfair Display','serif',900)">
-        <div class="fo-s" style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;">AMOR</div>
-        <div class="fo-n">Playfair</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Cormorant Garamond','serif',700)">
-        <div class="fo-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;">Amor</div>
-        <div class="fo-n">Cormorant</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)">
-        <div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div>
-        <div class="fo-n">Dancing Script</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Great Vibes','cursive',400)">
-        <div class="fo-s" style="font-family:'Great Vibes',cursive;font-weight:400;font-size:16px;">Amor</div>
-        <div class="fo-n">Great Vibes</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Sacramento','cursive',400)">
-        <div class="fo-s" style="font-family:'Sacramento',cursive;font-weight:400;font-size:15px;">Amor</div>
-        <div class="fo-n">Sacramento</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Pacifico','cursive',400)">
-        <div class="fo-s" style="font-family:'Pacifico',cursive;font-weight:400;font-size:12px;">Amor</div>
-        <div class="fo-n">Pacifico</div>
-      </div>
-      <div class="fo" onclick="setFont(this,'Lobster','cursive',400)">
-        <div class="fo-s" style="font-family:'Lobster',cursive;font-weight:400;font-size:13px;">Amor</div>
-        <div class="fo-n">Lobster</div>
-      </div>
+      <div class="fo active" onclick="setFont(this,'Montserrat','sans-serif',900)"><div class="fo-s" style="font-family:'Montserrat',sans-serif;font-weight:900;font-size:11px;">AMOR</div><div class="fo-n">Montserrat</div></div>
+      <div class="fo" onclick="setFont(this,'Bebas Neue','sans-serif',400)"><div class="fo-s" style="font-family:'Bebas Neue',sans-serif;font-size:14px;">AMOR</div><div class="fo-n">Bebas Neue</div></div>
+      <div class="fo" onclick="setFont(this,'Oswald','sans-serif',700)"><div class="fo-s" style="font-family:'Oswald',sans-serif;font-weight:700;font-size:12px;">AMOR</div><div class="fo-n">Oswald</div></div>
+      <div class="fo" onclick="setFont(this,'Arial Black','sans-serif',900)"><div class="fo-s" style="font-family:'Arial Black',sans-serif;font-weight:900;font-size:11px;">AMOR</div><div class="fo-n">Arial Black</div></div>
+      <div class="fo" onclick="setFont(this,'Georgia','serif',700)"><div class="fo-s" style="font-family:'Georgia',serif;font-weight:700;font-size:13px;">Amor</div><div class="fo-n">Georgia</div></div>
+      <div class="fo" onclick="setFont(this,'Playfair Display','serif',900)"><div class="fo-s" style="font-family:'Playfair Display',serif;font-weight:900;font-size:12px;">AMOR</div><div class="fo-n">Playfair</div></div>
+      <div class="fo" onclick="setFont(this,'Cormorant Garamond','serif',700)"><div class="fo-s" style="font-family:'Cormorant Garamond',serif;font-weight:700;font-size:13px;">Amor</div><div class="fo-n">Cormorant</div></div>
+      <div class="fo" onclick="setFont(this,'Dancing Script','cursive',700)"><div class="fo-s" style="font-family:'Dancing Script',cursive;font-weight:700;font-size:14px;">Amor</div><div class="fo-n">Dancing</div></div>
+      <div class="fo" onclick="setFont(this,'Great Vibes','cursive',400)"><div class="fo-s" style="font-family:'Great Vibes',cursive;font-weight:400;font-size:16px;">Amor</div><div class="fo-n">Great Vibes</div></div>
+      <div class="fo" onclick="setFont(this,'Sacramento','cursive',400)"><div class="fo-s" style="font-family:'Sacramento',cursive;font-weight:400;font-size:15px;">Amor</div><div class="fo-n">Sacramento</div></div>
+      <div class="fo" onclick="setFont(this,'Pacifico','cursive',400)"><div class="fo-s" style="font-family:'Pacifico',cursive;font-weight:400;font-size:12px;">Amor</div><div class="fo-n">Pacifico</div></div>
+      <div class="fo" onclick="setFont(this,'Lobster','cursive',400)"><div class="fo-s" style="font-family:'Lobster',cursive;font-weight:400;font-size:13px;">Amor</div><div class="fo-n">Lobster</div></div>
     </div>
   </div>
 
-  <!-- 12. FORMA -->
+  <!-- 15. FORMA -->
   <div>
-    <div class="st"><span class="n">12</span>Forma</div>
+    <div class="st"><span class="n">15</span>Forma</div>
     <div class="lg">
       <div class="lo active" onclick="setLayout(this,'top')">
-        <svg width="46" height="34" viewBox="0 0 46 34">
-          <rect x="1" y="1" width="44" height="12" rx="1" fill="#111"/>
-          <text x="23" y="9.5" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text>
-          <rect x="1" y="16" width="44" height="16" rx="1" fill="#ccc"/>
-          <text x="23" y="26" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text>
-        </svg>
+        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="44" height="12" rx="1" fill="#111"/><text x="23" y="9.5" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text><rect x="1" y="16" width="44" height="16" rx="1" fill="#ccc"/><text x="23" y="26" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text></svg>
         <span>Texto arriba</span>
       </div>
       <div class="lo" onclick="setLayout(this,'bottom')">
-        <svg width="46" height="34" viewBox="0 0 46 34">
-          <rect x="1" y="1" width="44" height="16" rx="1" fill="#ccc"/>
-          <text x="23" y="11" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text>
-          <rect x="1" y="20" width="44" height="12" rx="1" fill="#111"/>
-          <text x="23" y="29" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text>
-        </svg>
+        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="44" height="16" rx="1" fill="#ccc"/><text x="23" y="11" text-anchor="middle" fill="#888" font-size="4.5">FOTO</text><rect x="1" y="20" width="44" height="12" rx="1" fill="#111"/><text x="23" y="29" text-anchor="middle" fill="#fff" font-size="4.5">TEXTO</text></svg>
         <span>Texto abajo</span>
       </div>
       <div class="lo" onclick="setLayout(this,'left')">
-        <svg width="46" height="34" viewBox="0 0 46 34">
-          <rect x="1" y="1" width="20" height="32" rx="1" fill="#ccc"/>
-          <text x="11" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text>
-          <rect x="25" y="1" width="20" height="32" rx="1" fill="#111"/>
-          <text x="35" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text>
-        </svg>
+        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="20" height="32" rx="1" fill="#ccc"/><text x="11" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text><rect x="25" y="1" width="20" height="32" rx="1" fill="#111"/><text x="35" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text></svg>
         <span>Foto izq.</span>
       </div>
       <div class="lo" onclick="setLayout(this,'right')">
-        <svg width="46" height="34" viewBox="0 0 46 34">
-          <rect x="1" y="1" width="20" height="32" rx="1" fill="#111"/>
-          <text x="11" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text>
-          <rect x="25" y="1" width="20" height="32" rx="1" fill="#ccc"/>
-          <text x="35" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text>
-        </svg>
+        <svg width="46" height="34" viewBox="0 0 46 34"><rect x="1" y="1" width="20" height="32" rx="1" fill="#111"/><text x="11" y="18" text-anchor="middle" fill="#fff" font-size="4">TEXT</text><rect x="25" y="1" width="20" height="32" rx="1" fill="#ccc"/><text x="35" y="18" text-anchor="middle" fill="#888" font-size="4">FOTO</text></svg>
         <span>Foto der.</span>
       </div>
     </div>
   </div>
 
-  <!-- 13. EXPORTAR -->
+  <!-- 16. HISTORIAL -->
   <div>
-    <div class="st"><span class="n">13</span>Exportar</div>
+    <div class="st"><span class="n">16</span>Historial de tarjetas</div>
+    <div id="historyList" class="history-list"></div>
+    <button class="btn-add" onclick="saveToHistory()" style="margin-top:4px;">💾 Guardar en historial</button>
+  </div>
+
+  <!-- 17. EXPORTAR -->
+  <div>
+    <div class="st"><span class="n">17</span>Exportar</div>
     <button class="btn btn-gen" onclick="render()">✨ Actualizar tarjeta</button>
+    <button class="btn btn-wa" onclick="shareWhatsApp()">📲 Compartir por WhatsApp</button>
     <button class="btn btn-dl" onclick="download()">⬇ Descargar PNG</button>
   </div>
 

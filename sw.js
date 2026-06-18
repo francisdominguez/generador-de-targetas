@@ -1,4 +1,4 @@
-const CACHE = 'tarjetas-bp-v9';
+const CACHE = 'tarjetas-bp-v10';
 const ASSETS = [
   '/generador-de-targetas/',
   '/generador-de-targetas/index.html',

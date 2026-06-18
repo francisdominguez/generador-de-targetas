@@ -73,6 +73,34 @@
     <div style="font-size:9px;color:#aaa;margin-top:3px;">Toca para agregar · Arrastra para mover · Doble clic para borrar</div>
   </div>
 
+  <!-- TAMAÑO TARJETA -->
+  <div class="range-group">
+    <div class="st"><span class="n">★</span>Tamaño de la tarjeta</div>
+    <div class="slider-control">
+      <label>Ancho: <span id="cardWidthValue" class="slider-value">460px</span></label>
+      <input type="range" id="cardWidthSlider" min="280" max="700" value="460" step="10">
+      <div style="font-size:8px;color:#888;margin-top:3px;">← Pequeña | Grande →</div>
+    </div>
+  </div>
+
+  <!-- AJUSTE DE FOTO -->
+  <div class="range-group">
+    <div class="st"><span class="n">★</span>Ajuste de la foto</div>
+    <button id="photoFitBtn" class="fit-btn">✂️ Recortar (cover)</button>
+    <div class="slider-control" style="margin-top:8px;">
+      <label>Zoom foto: <span id="photoZoomValue" class="slider-value">100%</span></label>
+      <input type="range" id="photoZoomSlider" min="50" max="200" value="100" step="5">
+    </div>
+    <div class="slider-control" style="margin-top:6px;">
+      <label>Posición horizontal</label>
+      <input type="range" id="photoXSlider" min="0" max="100" value="50" step="1">
+    </div>
+    <div class="slider-control" style="margin-top:6px;">
+      <label>Posición vertical</label>
+      <input type="range" id="photoYSlider" min="0" max="100" value="50" step="1">
+    </div>
+  </div>
+
   <!-- 5. COLOR MARCO -->
   <div>
     <div class="st"><span class="n">5</span>Color marco exterior</div>

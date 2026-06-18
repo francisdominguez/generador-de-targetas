@@ -416,8 +416,8 @@ function render(){
   const tc=texto.c;
   const msg=MSGS[selMsg]||'';
   const alignClass=textAlign==='left'?(isLR?'ctxtlr-left':'ctxt-left'):(isLR?'ctxtlr':'ctxt');
-  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;`;
-  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;opacity:.75;margin-top:8px;`;
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;word-break:break-word;white-space:normal;overflow-wrap:break-word;width:100%;display:block;`;
+  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;width:100%;display:block;`;
   const subBlock=subtitulo?`<div class="${alignClass}" style="${sstyle}">${subtitulo}</div>`:'';
   const zoomScale = photoZoom / 100;
   const photoStyle = photoFit==='contain'
@@ -439,11 +439,11 @@ function render(){
   let innerHTML='';
   if(!isLR){
     const photoBlock=`<div class="cptb" style="padding:${photoPadding}px;"><div class="img-frame" style="height:${photoHeight}px;">${photoContent}</div></div>`;
-    const textBlock=`<div class="cth" style="${bgStyle}padding:${textPadding}px 20px;"><div class="${alignClass}" style="${fstyle}">${msg}</div>${subBlock}</div>`;
+    const textBlock=`<div class="cth" style="${bgStyle}padding:${textPadding}px 20px;width:100%;box-sizing:border-box;"><div class="${alignClass}" style="${fstyle}">${msg}</div>${subBlock}</div>`;
     innerHTML=layout==='top'?textBlock+photoBlock:photoBlock+textBlock;
   } else {
     const photoBlock=`<div class="cplr" style="width:${photoWidthPercent}%;padding:${photoPaddingLR}px;"><div class="img-frame" style="aspect-ratio:1/0.9;">${photoContent}</div></div>`;
-    const textBlock=`<div class="cthlr" style="${bgStyle}padding:${textPadding}px 16px;"><div class="${alignClass}" style="${fstyle}">${msg}</div>${subBlock}</div>`;
+    const textBlock=`<div class="cthlr" style="${bgStyle}padding:${textPadding}px 16px;box-sizing:border-box;"><div class="${alignClass}" style="${fstyle}">${msg}</div>${subBlock}</div>`;
     innerHTML=`<div class="cbody">${layout==='left'?photoBlock+textBlock:textBlock+photoBlock}</div>`;
   }
 

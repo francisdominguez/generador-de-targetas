@@ -404,8 +404,8 @@ function render(){
   const tc=texto.c;
   const msg=MSGS[selMsg]||'';
   const ta=textAlign==='left'?'left':'center';
-  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
-  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:pre-wrap;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:pre-wrap;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
   const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 
   // Foto compatible con html2canvas (sin object-fit ni transform)

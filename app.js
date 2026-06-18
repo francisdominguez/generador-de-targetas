@@ -398,13 +398,13 @@ function render(){
   const photoPaddingLR=Math.floor(8+(1-fotoFactor)*25);
   const textPadding=Math.floor(16+(1-fotoFactor)*12);
   const fontScale=0.6+(fontSize/100)*1.0;
-  const baseSz=isLR?13:14.5;
+  const baseSz=isLR?11:12.5;
   const tsz=(baseSz*fontScale).toFixed(1);
   const subSz=((baseSz*fontScale)*0.68).toFixed(1);
   const tc=texto.c;
   const msg=MSGS[selMsg]||'';
   const ta=textAlign==='left'?'left':'center';
-  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;overflow:hidden;max-width:100%;display:block;width:100%;box-sizing:border-box;`;
   const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
   const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 

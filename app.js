@@ -78,6 +78,11 @@ let darkMode = false;
 let editIdx = -1;
 let cardHistory = JSON.parse(localStorage.getItem('cardHistory')||'[]');
 let placedStickers = []; // [{emoji, x, y, id}]
+let cardWidth = 460;      // ancho tarjeta
+let photoFit = 'cover';   // 'cover' o 'contain'
+let photoZoom = 100;      // zoom % de la foto (100 = normal)
+let photoX = 50;          // posición horizontal % (50 = centro)
+let photoY = 50;          // posición vertical % (50 = centro)
 let dragSticker = null;
 
 /* ── MENSAJES ── */
@@ -284,6 +289,33 @@ function initSliders(){
   document.getElementById('fotoSizeSlider').addEventListener('input',e=>{ fotoSize=parseInt(e.target.value); const labels=['Muy pequeña','Pequeña','Med-pequeña','Mediana','Med-grande','Grande','Muy grande','Extra grande','Máxima']; document.getElementById('fotoSizeValue').textContent=labels[Math.min(Math.floor(fotoSize/12.5),8)]; render(); });
   document.getElementById('fontSizeSlider').addEventListener('input',e=>{ fontSize=parseInt(e.target.value); document.getElementById('fontSizeValue').textContent=fontSize+'%'; render(); });
   document.getElementById('subtituloInput').addEventListener('input',e=>{ subtitulo=e.target.value.toUpperCase(); render(); });
+
+  // Tamaño tarjeta
+  document.getElementById('cardWidthSlider').addEventListener('input',e=>{
+    cardWidth=parseInt(e.target.value);
+    document.getElementById('cardWidthValue').textContent=cardWidth+'px';
+    render();
+  });
+
+  // Controles foto
+  document.getElementById('photoFitBtn').addEventListener('click',()=>{
+    photoFit = photoFit==='cover' ? 'contain' : 'cover';
+    document.getElementById('photoFitBtn').textContent = photoFit==='cover' ? '✂️ Recortar (cover)' : '🖼 Completa (contain)';
+    render();
+  });
+  document.getElementById('photoZoomSlider').addEventListener('input',e=>{
+    photoZoom=parseInt(e.target.value);
+    document.getElementById('photoZoomValue').textContent=photoZoom+'%';
+    render();
+  });
+  document.getElementById('photoXSlider').addEventListener('input',e=>{
+    photoX=parseInt(e.target.value);
+    render();
+  });
+  document.getElementById('photoYSlider').addEventListener('input',e=>{
+    photoY=parseInt(e.target.value);
+    render();
+  });
 }
 
 /* ── FUENTE / LAYOUT ── */
@@ -369,7 +401,7 @@ function shareWhatsApp(){
 
 /* ── RENDER ── */
 function render(){
-  const W=460;
+  const W=cardWidth;
   const isLR=layout==='left'||layout==='right';
   const fotoFactor=fotoSize/100;
   const photoPadding=Math.floor(6+(1-fotoFactor)*34);
@@ -387,7 +419,11 @@ function render(){
   const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;`;
   const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;opacity:.75;margin-top:8px;`;
   const subBlock=subtitulo?`<div class="${alignClass}" style="${sstyle}">${subtitulo}</div>`:'';
-  const photoContent=imgSrc?`<img src="${imgSrc}" alt="foto">`:`<div class="ni"></div>`;
+  const zoomScale = photoZoom / 100;
+  const photoStyle = photoFit==='contain'
+    ? `width:100%;height:100%;object-fit:contain;object-position:${photoX}% ${photoY}%;transform:scale(${zoomScale});transform-origin:${photoX}% ${photoY}%;`
+    : `width:100%;height:100%;object-fit:cover;object-position:${photoX}% ${photoY}%;transform:scale(${zoomScale});transform-origin:${photoX}% ${photoY}%;`;
+  const photoContent=imgSrc?`<img src="${imgSrc}" alt="foto" style="${photoStyle}">`:`<div class="ni"></div>`;
 
   // Fondo / patrón
   let bgStyle=`background:${fondo.c};`;

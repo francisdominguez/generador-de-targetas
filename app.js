@@ -461,14 +461,52 @@ function render(){
 
 /* ── DOWNLOAD ── */
 function download(){
-  // Ocultar stickers draggables temporalmente y capturar
   const cardElement=document.querySelector('#cardWrap .card-outer');
   if(!cardElement||typeof html2canvas==='undefined') return;
-  const btn=document.querySelector('.btn-dl'); btn.textContent='⏳ Exportando…'; btn.disabled=true;
-  html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(c=>{
-    const a=document.createElement('a'); a.download='tarjeta.png'; a.href=c.toDataURL('image/png'); a.click();
-    btn.textContent='⬇ Descargar PNG'; btn.disabled=false;
+  const btn=document.querySelector('.btn-dl');
+  btn.textContent='⏳ Exportando…'; btn.disabled=true;
+
+  html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(canvas=>{
+    canvas.toBlob(async blob=>{
+      const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
+
+      // Móvil: intentar compartir/guardar en galería con Web Share API
+      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+        try{
+          await navigator.share({
+            files:[file],
+            title:'Mi tarjeta',
+            text:'Tarjeta creada con Generador de Tarjetas ❤️'
+          });
+          showToast('✅ Imagen guardada / compartida');
+        } catch(e){
+          // Usuario canceló el share — igual ofrecer descarga normal
+          if(e.name !== 'AbortError') fallbackDownload(canvas);
+        }
+      } else {
+        // Desktop o navegador sin soporte: descarga directa
+        fallbackDownload(canvas);
+      }
+      btn.textContent='⬇ Descargar PNG'; btn.disabled=false;
+    }, 'image/png');
   }).catch(()=>{ btn.textContent='⬇ Descargar PNG'; btn.disabled=false; });
+}
+
+function fallbackDownload(canvas){
+  const a=document.createElement('a');
+  a.download='tarjeta-blue-princess.png';
+  a.href=canvas.toDataURL('image/png');
+  a.click();
+  showToast('📥 Imagen descargada');
+}
+
+
+/* ── ACORDEÓN ── */
+function toggleAcc(btn){
+  const body = btn.nextElementSibling;
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  btn.classList.toggle('active', !isOpen);
 }
 
 /* ── INIT ── */

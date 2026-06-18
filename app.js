@@ -173,36 +173,28 @@ function getDecoOverlay(id, w, h, color){
 }
 
 function applyDecoToMarco(){
-  // Aplica decoración SOBRE el marco exterior (el borde de color)
   const cardOuter = document.querySelector('#cardWrap .card-outer');
   if(!cardOuter) return;
-
-  // Eliminar deco anterior
   const prev = cardOuter.querySelector('.marco-deco');
   if(prev) prev.remove();
-
   if(marcoDeco === 'none') return;
 
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
   const em = emojis[marcoDeco] || '';
-
-  // Tamaño del símbolo según marcoSize
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  const rect = cardOuter.getBoundingClientRect();
-  const W = rect.width;
-  const H = rect.height;
+  // Usar offsetWidth/offsetHeight — no se ven afectados por transform:scale del preview
+  const W = cardOuter.offsetWidth;
+  const H = cardOuter.offsetHeight;
 
-  // Crear capa SVG que cubre TODO el card-outer (incluyendo el borde)
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:hidden;`;
 
-  // Color del símbolo: contraste con el color del marco
   const light = isLight(marco.c);
-  const symColor = light ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.85)';
+  const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
   function addSym(x, y){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
@@ -216,14 +208,10 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  const m = marcoSize / 2; // centro del borde
-  // Fila superior
+  const m = marcoSize / 2;
   for(let x = step; x < W - step/2; x += step) addSym(x, m);
-  // Fila inferior
   for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
-  // Col izquierda
   for(let y = step; y < H - step/2; y += step) addSym(m, y);
-  // Col derecha
   for(let y = step; y < H - step/2; y += step) addSym(W - m, y);
 
   cardOuter.style.position = 'relative';
@@ -418,7 +406,7 @@ function render(){
   const ta=textAlign==='left'?'left':'center';
   const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
   const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
-  const subBlock=subtitulo?`<span style="${sstyle}">${subtitulo}</span>`:'';
+  const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 
   // Foto compatible con html2canvas (sin object-fit ni transform)
   let photoInner='';
@@ -440,12 +428,12 @@ function render(){
   let innerHTML='';
   if(!isLR){
     const photoBlock=`<div style="padding:${photoPadding}px;box-sizing:border-box;width:${W}px;${bgStyle}"><div style="width:100%;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div></div>`;
-    const textBlock=`<div style="${bgStyle}padding:${textPadding}px 20px;box-sizing:border-box;width:${W}px;"><span style="${fstyle}">${msg}</span>${subBlock}</div>`;
+    const textBlock=`<div style="${bgStyle}padding:${textPadding}px 20px;box-sizing:border-box;width:${W}px;"><div style="${fstyle}">${msg}</div>${subBlock}</div>`;
     innerHTML=layout==='top'?textBlock+photoBlock:photoBlock+textBlock;
   } else {
     const textWidthPx=W-photoWidthPx;
     const photoCell=`<div style="display:table-cell;width:${photoWidthPx}px;vertical-align:middle;padding:${photoPaddingLR}px;box-sizing:border-box;"><div style="width:100%;height:${Math.floor(photoWidthPx*0.85)}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div></div>`;
-    const textCell=`<div style="${bgStyle}display:table-cell;width:${textWidthPx}px;vertical-align:middle;padding:${textPadding}px 16px;box-sizing:border-box;"><span style="${fstyle}">${msg}</span>${subBlock}</div>`;
+    const textCell=`<div style="${bgStyle}display:table-cell;width:${textWidthPx}px;vertical-align:middle;padding:${textPadding}px 16px;box-sizing:border-box;"><div style="${fstyle}">${msg}</div>${subBlock}</div>`;
     innerHTML=`<div style="display:table;width:${W}px;table-layout:fixed;${bgStyle}">${layout==='left'?photoCell+textCell:textCell+photoCell}</div>`;
   }
 

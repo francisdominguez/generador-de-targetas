@@ -181,20 +181,49 @@ function applyDecoToMarco(){
 
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
   const em = emojis[marcoDeco] || '';
+
+  // offsetWidth/Height incluye el borde — es el tamaño total externo
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:hidden;`;
+  // El SVG se posiciona desde -marcoSize para cubrir el borde desde afuera
+  svg.style.cssText=`position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
 
   const light = isLight(marco.c);
-  const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
+  const symColor = light ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)';
 
-  const m = marcoSize / 2;  // centro del borde en cada lado
-  const sz = Math.max(8, Math.min(marcoSize * 0.7, 20));  // símbolo escala con el marco
-  const step = sz + Math.max(4, marcoSize * 0.4);         // paso también escala
+  const m = marcoSize / 2;                              // centro del borde
+  const sz = Math.max(8, Math.min(marcoSize * 0.65, 18)); // tamaño símbolo
+  const step = sz + Math.max(5, marcoSize * 0.35);     // espaciado
+
+  function addSym(x, y){
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', y);
+    t.setAttribute('text-anchor','middle');
+    t.setAttribute('dominant-baseline','central');
+    t.setAttribute('font-size', sz);
+    t.setAttribute('fill', symColor);
+    t.textContent = em;
+    svg.appendChild(t);
+  }
+
+  // Los 4 lados — coordenadas relativas al card-outer (que incluye el borde)
+  // Top: y = m (centro del borde superior)
+  for(let x = step; x < W - step/2; x += step) addSym(x, m);
+  // Bottom: y = H - m
+  for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
+  // Left: x = m, evitando esquinas
+  for(let y = m + step; y < H - m - step/2; y += step) addSym(m, y);
+  // Right: x = W - m, evitando esquinas
+  for(let y = m + step; y < H - m - step/2; y += step) addSym(W - m, y);
+
+  cardOuter.style.position = 'relative';
+  cardOuter.appendChild(svg);
+}
 
   function addSym(x, y){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');

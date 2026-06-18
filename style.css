@@ -152,6 +152,27 @@ body.dark .slider-control label{color:#ccc;}
 .btn-dl:hover{background:#a87520;}
 
 
+
+/* ════ ACORDEÓN ════ */
+.acc-section{border:1.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--panel);}
+
+.acc-btn{width:100%;display:flex;align-items:center;gap:10px;padding:11px 14px;background:transparent;border:none;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;text-align:left;}
+.acc-btn:hover{background:#f5f0e8;}
+body.dark .acc-btn:hover{background:#1e2a3a;}
+.acc-btn.active{background:#f5f0e8;}
+body.dark .acc-btn.active{background:#1e2a3a;}
+
+.acc-icon{font-size:16px;flex-shrink:0;}
+.acc-label{flex:1;font-size:12px;font-weight:700;color:#111;letter-spacing:.01em;}
+body.dark .acc-label{color:#eee;}
+.acc-arrow{font-size:10px;color:#aaa;transition:transform .25s;flex-shrink:0;}
+.acc-btn.active .acc-arrow{transform:rotate(180deg);}
+
+.acc-body{display:none;padding:0 14px 14px;flex-direction:column;gap:0;}
+.acc-body.open{display:flex;}
+
+.mini-label{font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;margin-top:2px;}
+
 /* BOTÓN FIT */
 .fit-btn{width:100%;padding:8px;background:#f5f0e8;border:1.5px solid #111;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;margin-top:4px;}
 .fit-btn:hover{background:#111;color:#fff;}

@@ -406,7 +406,7 @@ function render(){
   const fotoFactor=fotoSize/100;
   const photoPadding=Math.floor(6+(1-fotoFactor)*34);
   const photoHeight=Math.floor(100+fotoFactor*120);
-  const photoWidthPercent=30+fotoFactor*25;
+  const photoWidthPx=Math.floor(W*(0.30+fotoFactor*0.25));
   const photoPaddingLR=Math.floor(8+(1-fotoFactor)*25);
   const textPadding=Math.floor(16+(1-fotoFactor)*12);
   const fontScale=0.6+(fontSize/100)*1.0;
@@ -415,43 +415,43 @@ function render(){
   const subSz=((baseSz*fontScale)*0.68).toFixed(1);
   const tc=texto.c;
   const msg=MSGS[selMsg]||'';
-  const alignClass=textAlign==='left'?(isLR?'ctxtlr-left':'ctxt-left'):(isLR?'ctxtlr':'ctxt');
-  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;word-break:break-word;white-space:normal;overflow-wrap:break-word;width:100%;display:block;`;
-  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;width:100%;display:block;`;
-  const subBlock=subtitulo?`<div class="${alignClass}" style="${sstyle}">${subtitulo}</div>`:'';
-  const zoomScale = photoZoom / 100;
-  const photoStyle = photoFit==='contain'
-    ? `width:100%;height:100%;object-fit:contain;object-position:${photoX}% ${photoY}%;transform:scale(${zoomScale});transform-origin:${photoX}% ${photoY}%;`
-    : `width:100%;height:100%;object-fit:cover;object-position:${photoX}% ${photoY}%;transform:scale(${zoomScale});transform-origin:${photoX}% ${photoY}%;`;
-  const photoContent=imgSrc?`<img src="${imgSrc}" alt="foto" style="${photoStyle}">`:`<div class="ni"></div>`;
+  const ta=textAlign==='left'?'left':'center';
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:.5px;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:.8px;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const subBlock=subtitulo?`<span style="${sstyle}">${subtitulo}</span>`:'';
 
-  // Fondo / patrón
-  let bgStyle=`background:${fondo.c};`;
-  const patCSS=getPatternCSS(patron, fondo.c);
-  if(patCSS && patron.startsWith('grad-')){
-    bgStyle=`background:${patCSS};`;
-  } else if(patCSS){
-    bgStyle=`background-color:${fondo.c};background-image:${patCSS};`;
+  // Foto compatible con html2canvas (sin object-fit ni transform)
+  let photoInner='';
+  if(imgSrc){
+    const zs=photoZoom/100;
+    const ml=(photoX-50)*0.5;
+    const mt=(photoY-50)*0.5;
+    photoInner=`<div style="width:100%;height:100%;overflow:hidden;position:relative;"><img src="${imgSrc}" alt="" style="position:absolute;width:${100*zs}%;height:${100*zs}%;left:${50-photoX*zs}%;top:${50-photoY*zs}%;margin-left:${ml}%;margin-top:${mt}%;"></div>`;
+  } else {
+    photoInner=`<div style="width:100%;height:100%;background:#e8e0d4;text-align:center;padding-top:30px;font-size:32px;color:#aaa;">&#9633;</div>`;
   }
 
-  // Decoración marco — se aplica después del render vía applyDecoToMarco()
+  // Fondo / patron
+  let bgStyle=`background:${fondo.c};`;
+  const patCSS=getPatternCSS(patron,fondo.c);
+  if(patCSS&&patron.startsWith('grad-')){bgStyle=`background:${patCSS};`;}
+  else if(patCSS){bgStyle=`background-color:${fondo.c};background-image:${patCSS};`;}
 
   let innerHTML='';
   if(!isLR){
-    const photoBlock=`<div class="cptb" style="padding:${photoPadding}px;"><div class="img-frame" style="height:${photoHeight}px;">${photoContent}</div></div>`;
-    const textBlock=`<div class="cth" style="${bgStyle}padding:${textPadding}px 20px;width:100%;box-sizing:border-box;"><div class="${alignClass}" style="${fstyle}">${msg}</div>${subBlock}</div>`;
+    const photoBlock=`<div style="padding:${photoPadding}px;box-sizing:border-box;width:${W}px;${bgStyle}"><div style="width:100%;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div></div>`;
+    const textBlock=`<div style="${bgStyle}padding:${textPadding}px 20px;box-sizing:border-box;width:${W}px;"><span style="${fstyle}">${msg}</span>${subBlock}</div>`;
     innerHTML=layout==='top'?textBlock+photoBlock:photoBlock+textBlock;
   } else {
-    const photoBlock=`<div class="cplr" style="width:${photoWidthPercent}%;padding:${photoPaddingLR}px;"><div class="img-frame" style="aspect-ratio:1/0.9;">${photoContent}</div></div>`;
-    const textBlock=`<div class="cthlr" style="${bgStyle}padding:${textPadding}px 16px;box-sizing:border-box;"><div class="${alignClass}" style="${fstyle}">${msg}</div>${subBlock}</div>`;
-    innerHTML=`<div class="cbody">${layout==='left'?photoBlock+textBlock:textBlock+photoBlock}</div>`;
+    const textWidthPx=W-photoWidthPx;
+    const photoCell=`<div style="display:table-cell;width:${photoWidthPx}px;vertical-align:middle;padding:${photoPaddingLR}px;box-sizing:border-box;"><div style="width:100%;height:${Math.floor(photoWidthPx*0.85)}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div></div>`;
+    const textCell=`<div style="${bgStyle}display:table-cell;width:${textWidthPx}px;vertical-align:middle;padding:${textPadding}px 16px;box-sizing:border-box;"><span style="${fstyle}">${msg}</span>${subBlock}</div>`;
+    innerHTML=`<div style="display:table;width:${W}px;table-layout:fixed;${bgStyle}">${layout==='left'?photoCell+textCell:textCell+photoCell}</div>`;
   }
 
   document.getElementById('cardWrap').innerHTML=`
-    <div class="card-outer" style="position:relative;border-color:${marco.c};border-width:${marcoSize}px;border-style:solid;">
-      <div class="card-inner" style="${bgStyle}width:${W}px;">
-        ${innerHTML}
-      </div>
+    <div class="card-outer" style="position:relative;border-color:${marco.c};border-width:${marcoSize}px;border-style:solid;display:inline-block;">
+      <div style="width:${W}px;overflow:hidden;${bgStyle}">${innerHTML}</div>
     </div>`;
 
   renderStickersUI();

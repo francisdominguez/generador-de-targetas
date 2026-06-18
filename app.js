@@ -398,19 +398,14 @@ function render(){
   const photoPaddingLR=Math.floor(8+(1-fotoFactor)*25);
   const textPadding=Math.floor(16+(1-fotoFactor)*12);
   const fontScale=0.6+(fontSize/100)*1.0;
-  const baseSz=isLR ? (W/460)*11 : (W/460)*12.5;
+  const baseSz=isLR?13:14.5;
   const tsz=(baseSz*fontScale).toFixed(1);
   const subSz=((baseSz*fontScale)*0.68).toFixed(1);
   const tc=texto.c;
   const msg=MSGS[selMsg]||'';
   const ta=textAlign==='left'?'left':'center';
-  // Ancho máximo del texto según layout y variables dinámicas
-  const textWidthPxLR = W - Math.floor(W*(0.30+fotoFactor*0.25));
-  const textMaxW = isLR
-    ? textWidthPxLR - (textPadding*2)   // layout LR: ancho real de celda texto menos padding
-    : W - 40;                            // layout top/bottom: tarjeta completa menos padding lateral
-  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;overflow:hidden;width:${textMaxW}px;max-width:${textMaxW}px;box-sizing:border-box;`;
-  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;overflow:hidden;width:${textMaxW}px;max-width:${textMaxW}px;box-sizing:border-box;`;
+  const fstyle=`font-family:'${fontFam}',${fontGen};font-size:${tsz}px;color:${tc};font-weight:${fontWt};line-height:1.45;letter-spacing:0;text-transform:uppercase;text-align:${ta};word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
+  const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:normal;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
   const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 
   // Foto compatible con html2canvas (sin object-fit ni transform)
@@ -419,7 +414,7 @@ function render(){
     const zs=photoZoom/100;
     const ml=(photoX-50)*0.5;
     const mt=(photoY-50)*0.5;
-    photoInner=`<div style="width:100%;height:100%;overflow:hidden;position:relative;"><img src="${imgSrc}" alt="" style="position:absolute;width:${100*zs}%;height:${100*zs}%;left:${photoX}%;top:${photoY}%;transform:translate(-${photoX}%,-${photoY}%);"></div>`;
+    photoInner=`<div style="width:100%;height:100%;overflow:hidden;position:relative;"><img src="${imgSrc}" alt="" style="position:absolute;width:${100*zs}%;height:${100*zs}%;left:${photoX*(1-zs)}%;top:${photoY*(1-zs)}%;"></div>`;
   } else {
     photoInner=`<div style="width:100%;height:100%;background:#e8e0d4;text-align:center;padding-top:30px;font-size:32px;color:#aaa;">&#9633;</div>`;
   }

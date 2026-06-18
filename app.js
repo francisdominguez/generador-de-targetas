@@ -225,29 +225,6 @@ function applyDecoToMarco(){
   cardOuter.appendChild(svg);
 }
 
-  function addSym(x, y){
-    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x', x);
-    t.setAttribute('y', y);
-    t.setAttribute('text-anchor','middle');
-    t.setAttribute('dominant-baseline','central');
-    t.setAttribute('font-size', sz);
-    t.setAttribute('fill', symColor);
-    t.textContent = em;
-    svg.appendChild(t);
-  }
-
-  // Top y bottom: centrados verticalmente en el grosor del borde
-  for(let x = step; x < W - step/2; x += step) addSym(x, m);
-  for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
-  // Left y right: centrados horizontalmente en el grosor del borde
-  for(let y = step + m; y < H - step/2 - m; y += step) addSym(m, y);
-  for(let y = step + m; y < H - step/2 - m; y += step) addSym(W - m, y);
-
-  cardOuter.style.position = 'relative';
-  cardOuter.appendChild(svg);
-}
-
 /* ── STICKERS ── */
 function buildStickers(){
   const el=document.getElementById('stickerRow'); el.innerHTML='';

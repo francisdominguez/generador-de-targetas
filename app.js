@@ -1,6 +1,6 @@
 /* ══════════════════════════════════════
-   GENERADOR DE TARJETAS — app.js v3.1
-   Corregido: word-break y flex en layouts
+   GENERADOR DE TARJETAS — app.js v3.2
+   Corrección de desborde de texto en PNG
 ══════════════════════════════════════ */
 
 /* ── DATOS ── */
@@ -78,12 +78,12 @@ let marcoDeco = 'none';
 let darkMode = false;
 let editIdx = -1;
 let cardHistory = JSON.parse(localStorage.getItem('cardHistory')||'[]');
-let placedStickers = []; // [{emoji, x, y, id}]
-let cardWidth = 460;      // ancho tarjeta
-let photoFit = 'cover';   // 'cover' o 'contain'
-let photoZoom = 100;      // zoom % de la foto (100 = normal)
-let photoX = 50;          // posición horizontal % (50 = centro)
-let photoY = 50;          // posición vertical % (50 = centro)
+let placedStickers = [];
+let cardWidth = 460;
+let photoFit = 'cover';
+let photoZoom = 100;
+let photoX = 50;
+let photoY = 50;
 let dragSticker = null;
 
 /* ── MENSAJES ── */
@@ -141,7 +141,6 @@ function buildPatrones(){
 }
 
 function getPatternCSS(id, bg){
-  const c = marco.c;
   const light = isLight(bg);
   const lineC = light ? 'rgba(0,0,0,0.07)' : 'rgba(255,255,255,0.07)';
   switch(id){
@@ -149,7 +148,7 @@ function getPatternCSS(id, bg){
     case 'stripes': return `repeating-linear-gradient(0deg, ${lineC} 0px, ${lineC} 1px, transparent 1px, transparent 16px)`;
     case 'diagonal': return `repeating-linear-gradient(45deg, ${lineC} 0px, ${lineC} 1px, transparent 1px, transparent 14px)`;
     case 'grid': return `linear-gradient(${lineC} 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, ${lineC} 1px, transparent 1px) 0 0 / 18px 18px`;
-    case 'hearts': return null; // SVG inline
+    case 'hearts': return null;
     case 'grad-pink': return `linear-gradient(135deg, #fde8ec 0%, #f0e0f0 100%)`;
     case 'grad-blue': return `linear-gradient(135deg, #dce8f5 0%, #dcdcf5 100%)`;
     case 'grad-gold': return `linear-gradient(135deg, #fef4d0 0%, #f5e6c8 100%)`;
@@ -377,7 +376,7 @@ function shareWhatsApp(){
 }
 
 /* ── RENDER (CORREGIDO) ── */
-function render(){
+function render() {
   const W = cardWidth;
   const isLR = layout === 'left' || layout === 'right';
   const fotoFactor = fotoSize / 100;
@@ -394,8 +393,8 @@ function render(){
   const msg = MSGS[selMsg] || '';
   const ta = textAlign === 'left' ? 'left' : 'center';
 
-  // Estilos BASE con word-break forzado
-  const textBaseStyle = `
+  // Estilos para el texto (con word-break forzado)
+  const textStyle = `
     font-family:'${fontFam}',${fontGen};
     font-size:${tsz}px;
     color:${tc};
@@ -404,8 +403,8 @@ function render(){
     letter-spacing:0;
     text-transform:uppercase;
     text-align:${ta};
-    word-break:break-all;
-    overflow-wrap:anywhere;
+    word-break:break-word;
+    overflow-wrap:break-word;
     white-space:normal;
     display:block;
     width:100%;
@@ -413,7 +412,7 @@ function render(){
     box-sizing:border-box;
   `;
 
-  const subBaseStyle = `
+  const subStyle = `
     font-family:'${fontFam}',${fontGen};
     font-size:${subSz}px;
     color:${tc};
@@ -424,8 +423,8 @@ function render(){
     text-align:${ta};
     opacity:.75;
     margin-top:8px;
-    word-break:break-all;
-    overflow-wrap:anywhere;
+    word-break:break-word;
+    overflow-wrap:break-word;
     white-space:normal;
     display:block;
     width:100%;
@@ -433,7 +432,7 @@ function render(){
     box-sizing:border-box;
   `;
 
-  const subBlock = subtitulo ? `<div style="${subBaseStyle}">${subtitulo}</div>` : '';
+  const subBlock = subtitulo ? `<div style="${subStyle}">${subtitulo}</div>` : '';
 
   // Foto
   let photoInner = '';
@@ -460,7 +459,7 @@ function render(){
   let innerHTML = '';
 
   if (!isLR) {
-    // Layouts TOP / BOTTOM
+    // Layout TOP / BOTTOM (apilados)
     const photoBlock = `
       <div style="padding:${photoPadding}px;box-sizing:border-box;width:${W}px;${bgStyle}">
         <div style="width:100%;height:${photoHeight}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div>
@@ -468,32 +467,40 @@ function render(){
     `;
     const textBlock = `
       <div style="${bgStyle}padding:${textPadding}px 20px;box-sizing:border-box;width:${W}px;overflow:hidden;">
-        <div style="${textBaseStyle}">${msg}</div>
+        <div style="${textStyle}">${msg}</div>
         ${subBlock}
       </div>
     `;
     innerHTML = layout === 'top' ? textBlock + photoBlock : photoBlock + textBlock;
   } else {
-    // Layouts LEFT / RIGHT (FLEX en lugar de TABLE)
-    const textWidthPx = W - photoWidthPx - (textPadding * 2) - 32;
-    const photoFlex = `0 0 ${photoWidthPx}px`;
-    const textFlex = `1 1 ${textWidthPx}px`;
+    // Layout LEFT / RIGHT (inline-block con anchos fijos)
+    const textWidthPx = W - photoWidthPx - (photoPaddingLR * 2) - (textPadding * 2) - 16;
+    const finalTextWidth = Math.max(textWidthPx, 80);
 
-    const photoCell = `
-      <div style="flex:${photoFlex};padding:${photoPaddingLR}px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;">
+    const photoBlock = `
+      <div style="display:inline-block;vertical-align:middle;width:${photoWidthPx}px;padding:${photoPaddingLR}px;box-sizing:border-box;">
         <div style="width:100%;height:${Math.floor(photoWidthPx * 0.85)}px;border-radius:6px;overflow:hidden;background:#e8e0d4;">${photoInner}</div>
       </div>
     `;
-    const textCell = `
-      <div style="flex:${textFlex};padding:${textPadding}px 16px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;overflow:hidden;${bgStyle}">
-        <div style="${textBaseStyle}">${msg}</div>
+    const textBlock = `
+      <div style="display:inline-block;vertical-align:middle;width:${finalTextWidth}px;padding:${textPadding}px 12px;box-sizing:border-box;overflow:hidden;${bgStyle}">
+        <div style="${textStyle}">${msg}</div>
         ${subBlock}
       </div>
     `;
 
+    const containerStyle = `
+      display:block;
+      width:${W}px;
+      ${bgStyle};
+      font-size:0;
+      white-space:nowrap;
+      overflow:hidden;
+    `;
+
     innerHTML = `
-      <div style="display:flex;flex-direction:row;width:${W}px;${bgStyle}">
-        ${layout === 'left' ? photoCell + textCell : textCell + photoCell}
+      <div style="${containerStyle}">
+        ${layout === 'left' ? photoBlock + textBlock : textBlock + photoBlock}
       </div>
     `;
   }
@@ -543,7 +550,6 @@ function fallbackDownload(canvas){
   a.click();
   showToast('📥 Imagen descargada');
 }
-
 
 /* ── ACORDEÓN ── */
 function toggleAcc(btn){

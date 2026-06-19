@@ -462,18 +462,30 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
-  const decoSvg = cardElement.querySelector('.marco-deco');
-  if(decoSvg) decoSvg.style.display = 'none';
+  // Asegurar que la decoración esté aplicada
+  const existingDeco = cardElement.querySelector('.marco-deco');
+  if(existingDeco) existingDeco.remove();
+  applyDecoToMarco();
 
   html2canvas(cardElement, {
     scale: 3,
     useCORS: true,
     allowTaint: true,
     backgroundColor: null,
-    logging: false
+    logging: false,
+    onclone: function(doc) {
+      // Forzar estilos en los textos SVG del clon para que html2canvas los renderice bien
+      const texts = doc.querySelectorAll('.marco-deco text');
+      const light = isLight(marco.c);
+      const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
+      texts.forEach(text => {
+        text.setAttribute('fill', symColor);
+        text.setAttribute('font-family', "'Montserrat', 'Segoe UI', sans-serif");
+        text.style.fill = symColor;
+        text.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
+      });
+    }
   }).then(canvas => {
-    if(decoSvg) decoSvg.style.display = '';
-
     canvas.toBlob(async blob => {
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
 

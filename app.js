@@ -182,27 +182,23 @@ function applyDecoToMarco(){
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
   const em = emojis[marcoDeco] || '';
 
-  // offsetWidth/Height incluye el borde — es el tamaño total externo
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
   svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  // El SVG se posiciona desde -marcoSize para cubrir el borde desde afuera
-  svg.style.cssText=`position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:hidden;`;
+  svg.style.cssText=`position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)';
-
-  const m = marcoSize / 2;                              // centro del borde
-  const sz = Math.max(8, Math.min(marcoSize * 0.65, 18)); // tamaño símbolo
-  const step = sz + Math.max(5, marcoSize * 0.35);     // espaciado
+  const m = marcoSize / 2;
+  const sz = Math.max(8, Math.min(marcoSize * 0.65, 18));
+  const step = sz + Math.max(5, marcoSize * 0.35);
 
   function addSym(x, y){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x', x);
-    t.setAttribute('y', y);
+    t.setAttribute('x', x); t.setAttribute('y', y);
     t.setAttribute('text-anchor','middle');
     t.setAttribute('dominant-baseline','central');
     t.setAttribute('font-size', sz);
@@ -211,14 +207,9 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  // Los 4 lados — coordenadas relativas al card-outer (que incluye el borde)
-  // Top: y = m (centro del borde superior)
   for(let x = step; x < W - step/2; x += step) addSym(x, m);
-  // Bottom: y = H - m
   for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
-  // Left: x = m, evitando esquinas
   for(let y = m + step; y < H - m - step/2; y += step) addSym(m, y);
-  // Right: x = W - m, evitando esquinas
   for(let y = m + step; y < H - m - step/2; y += step) addSym(W - m, y);
 
   cardOuter.style.position = 'relative';
@@ -381,6 +372,20 @@ function shareWhatsApp(){
   if(!cardElement||typeof html2canvas==='undefined') return;
   showToast('📸 Preparando imagen…');
   html2canvas(cardElement,{scale:2,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(c=>{
+    if(marcoDeco !== 'none'){
+      const ctx=c.getContext('2d'); const scale=2;
+      const W=c.width; const H=c.height; const ms=marcoSize*scale; const m=ms/2;
+      const emojis={hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
+      const em=emojis[marcoDeco]||'';
+      const sz=Math.max(8,Math.min(marcoSize*0.65,18))*scale;
+      const step=sz+Math.max(5,marcoSize*0.35)*scale;
+      ctx.fillStyle=isLight(marco.c)?'rgba(0,0,0,0.65)':'rgba(255,255,255,0.95)';
+      ctx.font=`${sz}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+      for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,m);
+      for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,H-m);
+      for(let y=m+step;y<H-m-step/2;y+=step) ctx.fillText(em,m,y);
+      for(let y=m+step;y<H-m-step/2;y+=step) ctx.fillText(em,W-m,y);
+    }
     c.toBlob(blob=>{
       if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],'tarjeta.png',{type:'image/png'})]})){
         navigator.share({ files:[new File([blob],'tarjeta.png',{type:'image/png'})], title:'Mi tarjeta', text:'Mira esta tarjeta que hice ❤️' }).catch(()=>{});
@@ -463,6 +468,32 @@ function download(){
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
   html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(canvas=>{
+    // Dibujar decoración encima del canvas si está activa
+    if(marcoDeco !== 'none'){
+      const ctx = canvas.getContext('2d');
+      const scale = 3;
+      const W = canvas.width;
+      const H = canvas.height;
+      const ms = marcoSize * scale;
+      const m = ms / 2;
+      const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
+      const em = emojis[marcoDeco] || '';
+      const sz = Math.max(8, Math.min(marcoSize * 0.65, 18)) * scale;
+      const step = sz + Math.max(5, marcoSize * 0.35) * scale;
+      const light = isLight(marco.c);
+      ctx.fillStyle = light ? 'rgba(0,0,0,0.65)' : 'rgba(255,255,255,0.95)';
+      ctx.font = `${sz}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // Top
+      for(let x = step; x < W - step/2; x += step) ctx.fillText(em, x, m);
+      // Bottom
+      for(let x = step; x < W - step/2; x += step) ctx.fillText(em, x, H - m);
+      // Left
+      for(let y = m + step; y < H - m - step/2; y += step) ctx.fillText(em, m, y);
+      // Right
+      for(let y = m + step; y < H - m - step/2; y += step) ctx.fillText(em, W - m, y);
+    }
     canvas.toBlob(async blob=>{
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
 

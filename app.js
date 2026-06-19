@@ -179,13 +179,13 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  const W = cardOuter.offsetWidth;
-  const H = cardOuter.offsetHeight;
+  const totalW = cardOuter.offsetWidth;
+  const totalH = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.style.cssText=`position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+  svg.style.cssText = `position:absolute;top:0;left:0;width:${totalW}px;height:${totalH}px;pointer-events:none;z-index:10;overflow:visible;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
@@ -204,27 +204,26 @@ function applyDecoToMarco(){
 
   const m = marcoSize / 2;
   
-  // Recopilar todas las posiciones para evitar duplicados
   const positions = [];
   
   // SUPERIOR
-  for(let x = m; x < W - m; x += step) {
+  for(let x = m; x < totalW - m; x += step) {
     positions.push({x: x, y: m});
   }
   
   // INFERIOR
-  for(let x = m; x < W - m; x += step) {
-    positions.push({x: x, y: H - m});
+  for(let x = m; x < totalW - m; x += step) {
+    positions.push({x: x, y: totalH - m});
   }
   
   // IZQUIERDA
-  for(let y = m + step; y < H - m - step/2; y += step) {
+  for(let y = m + step; y < totalH - m - step/2; y += step) {
     positions.push({x: m, y: y});
   }
   
   // DERECHA
-  for(let y = m + step; y < H - m - step/2; y += step) {
-    positions.push({x: W - m, y: y});
+  for(let y = m + step; y < totalH - m - step/2; y += step) {
+    positions.push({x: totalW - m, y: y});
   }
 
   positions.forEach(pos => addSym(pos.x, pos.y));
@@ -460,7 +459,6 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
-  // Asegurar que la decoración esté aplicada
   const existingDeco = cardElement.querySelector('.marco-deco');
   if(existingDeco) existingDeco.remove();
   applyDecoToMarco();
@@ -472,7 +470,6 @@ function download(){
     backgroundColor: null,
     logging: false,
     onclone: function(doc) {
-      // Forzar estilos en los textos SVG del clon
       const texts = doc.querySelectorAll('.marco-deco text');
       const light = isLight(marco.c);
       const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';

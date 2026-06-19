@@ -179,23 +179,18 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // Obtener el contenedor interno (donde está el contenido)
-  const innerDiv = cardOuter.querySelector('div');
-  if(!innerDiv) return;
+  // Obtener el rectángulo del card-outer
+  const rect = cardOuter.getBoundingClientRect();
+  const W = rect.width;
+  const H = rect.height;
   
-  const innerW = innerDiv.offsetWidth;
-  const innerH = innerDiv.offsetHeight;
-  
-  // El marco está alrededor del innerDiv
-  // El tamaño total incluye el marco
-  const totalW = cardOuter.offsetWidth;
-  const totalH = cardOuter.offsetHeight;
+  // El marco está en el borde
+  const m = marcoSize / 2;
 
-  // Crear SVG que cubra TODO el card-outer
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
-  svg.style.cssText = `position:absolute;top:0;left:0;width:${totalW}px;height:${totalH}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.cssText = `position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
@@ -212,35 +207,20 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  // El marco comienza en 0 y termina en totalW/totalH
-  // Los corazones van en el CENTRO del marco (a mitad de camino entre el borde exterior y el interior)
-  const marcoCentro = marcoSize / 2;
+  // CORRECCIÓN: usar W y H como coordenadas directas
+  // El centro del marco está en m desde cada borde
   
-  // Calcular dónde está el centro del marco en cada lado
-  const leftX = marcoCentro;
-  const rightX = totalW - marcoCentro;
-  const topY = marcoCentro;
-  const bottomY = totalH - marcoCentro;
-
-  // SUPERIOR: en el centro del marco superior
-  for(let x = leftX; x < totalW - marcoCentro; x += step) {
-    addSym(x, topY);
-  }
+  // SUPERIOR: y = m
+  for(let x = m; x < W - m; x += step) addSym(x, m);
   
-  // INFERIOR: en el centro del marco inferior
-  for(let x = leftX; x < totalW - marcoCentro; x += step) {
-    addSym(x, bottomY);
-  }
+  // INFERIOR: y = H - m
+  for(let x = m; x < W - m; x += step) addSym(x, H - m);
   
-  // IZQUIERDA: en el centro del marco izquierdo (evitando esquinas)
-  for(let y = topY + step; y < bottomY - step/2; y += step) {
-    addSym(leftX, y);
-  }
+  // IZQUIERDA: x = m (evitar esquinas)
+  for(let y = m + step; y < H - m - step/2; y += step) addSym(m, y);
   
-  // DERECHA: en el centro del marco derecho (evitando esquinas)
-  for(let y = topY + step; y < bottomY - step/2; y += step) {
-    addSym(rightX, y);
-  }
+  // DERECHA: x = W - m (evitar esquinas)
+  for(let y = m + step; y < H - m - step/2; y += step) addSym(W - m, y);
 
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);

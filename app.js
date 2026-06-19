@@ -209,10 +209,10 @@ function applyDecoToMarco(){
   }
 
   const m = marcoSize / 2;
-  for(let x = step; x < W - step/2; x += step) addSym(x, m);
-  for(let x = step; x < W - step/2; x += step) addSym(x, H - m);
-  for(let y = step; y < H - step/2; y += step) addSym(m, y);
-  for(let y = step; y < H - step/2; y += step) addSym(W - m, y);
+  for(let x = m; x < W - m; x += step) addSym(x, m);
+  for(let x = m; x < W - m; x += step) addSym(x, H - m);
+  for(let y = m + step; y < H - m; y += step) addSym(m, y);
+  for(let y = m + step; y < H - m; y += step) addSym(W - m, y);
 
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);

@@ -1,4 +1,4 @@
-/* ══════════════════════════════════════
+asi /* ══════════════════════════════════════
    GENERADOR DE TARJETAS — app.js v3.0
 ══════════════════════════════════════ */
 
@@ -179,23 +179,25 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // Obtener el rectángulo del card-outer
-  const rect = cardOuter.getBoundingClientRect();
-  const W = rect.width;
-  const H = rect.height;
-  
-  // El marco está en el borde
-  const m = marcoSize / 2;
+  const W = cardOuter.offsetWidth;
+  const H = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  svg.style.cssText = `position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.style.cssText=`position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
+  // Usar Set para evitar duplicados
+  const usedPositions = new Set();
+
   function addSym(x, y){
+    const key = `${Math.round(x)},${Math.round(y)}`;
+    if(usedPositions.has(key)) return;
+    usedPositions.add(key);
+    
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', x);
     t.setAttribute('y', y);
@@ -207,24 +209,32 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  // CORRECCIÓN: usar W y H como coordenadas directas
-  // El centro del marco está en m desde cada borde
+  const m = marcoSize / 2;
   
-  // SUPERIOR: y = m
-  for(let x = m; x < W - m; x += step) addSym(x, m);
+  // SUPERIOR: de izquierda a derecha
+  for(let x = m; x < W - m; x += step) {
+    addSym(x, m);
+  }
   
-  // INFERIOR: y = H - m
-  for(let x = m; x < W - m; x += step) addSym(x, H - m);
+  // INFERIOR: de izquierda a derecha
+  for(let x = m; x < W - m; x += step) {
+    addSym(x, H - m);
+  }
   
-  // IZQUIERDA: x = m (evitar esquinas)
-  for(let y = m + step; y < H - m - step/2; y += step) addSym(m, y);
+  // IZQUIERDA: de arriba a abajo (TODO el lado)
+  for(let y = m; y < H - m; y += step) {
+    addSym(m, y);
+  }
   
-  // DERECHA: x = W - m (evitar esquinas)
-  for(let y = m + step; y < H - m - step/2; y += step) addSym(W - m, y);
+  // DERECHA: de arriba a abajo (TODO el lado)
+  for(let y = m; y < H - m; y += step) {
+    addSym(W - m, y);
+  }
 
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);
 }
+
 /* ── STICKERS ── */
 function buildStickers(){
   const el=document.getElementById('stickerRow'); el.innerHTML='';
@@ -452,30 +462,18 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
-  // Asegurar que la decoración esté aplicada
-  const existingDeco = cardElement.querySelector('.marco-deco');
-  if(existingDeco) existingDeco.remove();
-  applyDecoToMarco();
+  const decoSvg = cardElement.querySelector('.marco-deco');
+  if(decoSvg) decoSvg.style.display = 'none';
 
   html2canvas(cardElement, {
     scale: 3,
     useCORS: true,
     allowTaint: true,
     backgroundColor: null,
-    logging: false,
-    onclone: function(doc) {
-      // Forzar estilos en los textos SVG del clon para que html2canvas los renderice bien
-      const texts = doc.querySelectorAll('.marco-deco text');
-      const light = isLight(marco.c);
-      const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
-      texts.forEach(text => {
-        text.setAttribute('fill', symColor);
-        text.setAttribute('font-family', "'Montserrat', 'Segoe UI', sans-serif");
-        text.style.fill = symColor;
-        text.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
-      });
-    }
+    logging: false
   }).then(canvas => {
+    if(decoSvg) decoSvg.style.display = '';
+
     canvas.toBlob(async blob => {
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
 

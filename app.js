@@ -371,7 +371,11 @@ function shareWhatsApp(){
   const cardElement=document.querySelector('#cardWrap .card-outer');
   if(!cardElement||typeof html2canvas==='undefined') return;
   showToast('📸 Preparando imagen…');
+  const decoSvg2 = cardElement.querySelector('.marco-deco');
+  if(decoSvg2) decoSvg2.style.display='none';
+
   html2canvas(cardElement,{scale:2,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(c=>{
+    if(decoSvg2) decoSvg2.style.display='';
     if(marcoDeco !== 'none'){
       const ctx=c.getContext('2d'); const scale=2;
       const W=c.width; const H=c.height; const ms=marcoSize*scale; const m=ms/2;
@@ -467,7 +471,13 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
+  // Ocultar SVG de decoración antes de capturar para evitar doble render
+  const decoSvg = cardElement.querySelector('.marco-deco');
+  if(decoSvg) decoSvg.style.display='none';
+
   html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(canvas=>{
+    // Restaurar SVG en el preview
+    if(decoSvg) decoSvg.style.display='';
     // Dibujar decoración encima del canvas si está activa
     if(marcoDeco !== 'none'){
       const ctx = canvas.getContext('2d');

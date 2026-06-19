@@ -179,25 +179,22 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
+  // Usar el tamaño del card-outer (que incluye el marco)
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
+  
+  // El marco está en el borde, los corazones van sobre el marco
+  const m = marcoSize / 2; // mitad del marco
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  svg.style.cssText=`position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.cssText = `position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;overflow:visible;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
-  // Usar Set para evitar duplicados
-  const usedPositions = new Set();
-
   function addSym(x, y){
-    const key = `${Math.round(x)},${Math.round(y)}`;
-    if(usedPositions.has(key)) return;
-    usedPositions.add(key);
-    
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', x);
     t.setAttribute('y', y);
@@ -209,25 +206,24 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  const m = marcoSize / 2;
-  
-  // SUPERIOR: de izquierda a derecha
+  // POSICIONES: sobre el marco (exactamente en el borde)
+  // Superior: y = m (centro del marco superior)
   for(let x = m; x < W - m; x += step) {
     addSym(x, m);
   }
   
-  // INFERIOR: de izquierda a derecha
+  // Inferior: y = H - m (centro del marco inferior)
   for(let x = m; x < W - m; x += step) {
     addSym(x, H - m);
   }
   
-  // IZQUIERDA: de arriba a abajo (TODO el lado)
-  for(let y = m; y < H - m; y += step) {
+  // Izquierda: x = m (centro del marco izquierdo)
+  for(let y = m + step; y < H - m - step/2; y += step) {
     addSym(m, y);
   }
   
-  // DERECHA: de arriba a abajo (TODO el lado)
-  for(let y = m; y < H - m; y += step) {
+  // Derecha: x = W - m (centro del marco derecho)
+  for(let y = m + step; y < H - m - step/2; y += step) {
     addSym(W - m, y);
   }
 

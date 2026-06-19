@@ -170,6 +170,7 @@ function buildMarcosDeco(){
 function applyDecoToMarco(){
   const cardOuter = document.querySelector('#cardWrap .card-outer');
   if(!cardOuter) return;
+  
   const prev = cardOuter.querySelector('.marco-deco');
   if(prev) prev.remove();
   if(marcoDeco === 'none') return;
@@ -177,63 +178,63 @@ function applyDecoToMarco(){
   const emojis = {hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
   const em = emojis[marcoDeco] || '';
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
-  const step = sz + 6;
-
-  // offsetWidth y offsetHeight ya incluyen el borde verde. 
-  // Nos da la medida física total de la tarjeta.
+  
+  // 1. Obtenemos las dimensiones reales del marco dinámico
   const totalW = cardOuter.offsetWidth;
   const totalH = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
+  
+  // 2. Ajustamos el viewBox para que sea exacto al marco actual
   svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
-  svg.style.cssText = `position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${totalW}px;height:${totalH}px;pointer-events:none;z-index:10;overflow:visible;`;
+  
+  // 3. Posicionamiento absoluto ajustado al borde (marcoSize)
+  svg.style.cssText = `
+    position: absolute;
+    top: -${marcoSize}px;
+    left: -${marcoSize}px;
+    width: ${totalW + (marcoSize * 2)}px;
+    height: ${totalH + (marcoSize * 2)}px;
+    pointer-events: none;
+    z-index: 10;
+    overflow: visible;
+  `;
 
+  // Determinamos el color basado en si el marco elegido es claro u oscuro[cite: 2]
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
   function addSym(x, y){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x', x);
-    t.setAttribute('y', y);
+    t.setAttribute('x', x + marcoSize); // Compensamos el desplazamiento del marco
+    t.setAttribute('y', y + marcoSize);
     t.setAttribute('text-anchor','middle');
     t.setAttribute('dominant-baseline','central');
     t.setAttribute('font-size', sz);
     t.setAttribute('fill', symColor);
-    t.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
     t.textContent = em;
     svg.appendChild(t);
   }
 
-  // El centro del borde verde
   const m = marcoSize / 2;
-  const positions = [];
+  const targetStep = sz + 8;
+  const countX = Math.round((totalW) / targetStep);
+  const countY = Math.round((totalH) / targetStep);
+  const stepX = (totalW) / countX;
+  const stepY = (totalH) / countY;
 
-  // Superior e inferior
-  for(let x = m; x <= totalW - m; x += step) {
-    positions.push({x, y: m});
-    positions.push({x, y: totalH - m});
+  // Dibujamos sobre el marco dinámico
+  for(let i = 0; i <= countX; i++) {
+    addSym(i * stepX, 0); 
+    addSym(i * stepX, totalH);
+  }
+  for(let i = 1; i < countY; i++) {
+    addSym(0, i * stepY);
+    addSym(totalW, i * stepY);
   }
 
-  // Izquierdo y derecho (sin repetir esquinas)
-  for(let y = m + step; y < totalH - m; y += step) {
-    positions.push({x: m, y});
-    positions.push({x: totalW - m, y});
-  }
-
-  positions.forEach(pos => addSym(pos.x, pos.y));
-
-  cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);
-}
-/* ── STICKERS ── */
-function buildStickers(){
-  const el=document.getElementById('stickerRow'); el.innerHTML='';
-  STICKERS.forEach(em=>{
-    const b=document.createElement('div'); b.className='sticker-btn'; b.textContent=em;
-    b.onclick=()=>addSticker(em);
-    el.appendChild(b);
-  });
 }
 
 function addSticker(em){

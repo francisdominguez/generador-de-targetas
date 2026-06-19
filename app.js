@@ -171,7 +171,7 @@ function applyDecoToMarco(){
   const cardOuter = document.querySelector('#cardWrap .card-outer');
   if(!cardOuter) return;
   
-  // Limpiamos cualquier rastro anterior
+  // Limpiar anterior
   const prev = cardOuter.querySelector('.marco-deco');
   if(prev) prev.remove();
   if(marcoDeco === 'none') return;
@@ -180,32 +180,26 @@ function applyDecoToMarco(){
   const em = emojis[marcoDeco] || '';
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   
-  // 1. MEDIDAS EXACTAS
-  // Usamos offsetWidth/Height que ya incluyen el borde CSS del elemento
-  const w = cardOuter.offsetWidth;
-  const h = cardOuter.offsetHeight;
+  // Medidas del contenedor incluyendo el borde (el marco)
+  const totalW = cardOuter.offsetWidth;
+  const totalH = cardOuter.offsetHeight;
 
-  // 2. CREACIÓN DEL SVG
-  // El SVG debe cubrir el área total incluyendo los bordes
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
   
-  // Posicionamos el SVG desplazado hacia afuera exactamente el grosor del marco
-  // Así el borde del SVG coincide con el borde exterior de la tarjeta
+  // Forzamos el tamaño del SVG para que cubra exactamente el borde
   svg.style.cssText = `
     position: absolute;
     top: -${marcoSize}px;
     left: -${marcoSize}px;
-    width: ${w + (marcoSize * 2)}px;
-    height: ${h + (marcoSize * 2)}px;
+    width: ${totalW}px;
+    height: ${totalH}px;
     pointer-events: none;
     z-index: 10;
     overflow: visible;
   `;
   
-  // El viewBox define el espacio de dibujo. 
-  // Debe ser el tamaño del contenedor MÁS los márgenes que sacamos hacia afuera.
-  svg.setAttribute('viewBox', `0 0 ${w + (marcoSize * 2)} ${h + (marcoSize * 2)}`);
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
@@ -222,25 +216,19 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  // EL TRUCO: 
-  // La línea central del borde está a la mitad del marcoSize desde el borde exterior.
+  // Dibujar corazones
   const m = marcoSize / 2;
-  const step = sz + 8; // Espaciado entre corazones
+  const step = sz + 6;
 
-  // Dimensiones totales de dibujo incluyendo el marco
-  const totalW = w + (marcoSize * 2);
-  const totalH = h + (marcoSize * 2);
-
-  // Dibujar
-  // Borde Superior e Inferior
-  for(let x = marcoSize; x <= totalW - marcoSize; x += step) {
-    addSym(x, m); // Arriba
-    addSym(x, totalH - m); // Abajo
+  // Bordes superiores e inferiores
+  for(let x = m; x <= totalW - m; x += step) {
+    addSym(x, m);
+    addSym(x, totalH - m);
   }
-  // Borde Izquierdo y Derecho
-  for(let y = marcoSize + step; y < totalH - marcoSize; y += step) {
-    addSym(m, y); // Izquierda
-    addSym(totalW - m, y); // Derecha
+  // Bordes laterales
+  for(let y = m + step; y < totalH - m; y += step) {
+    addSym(m, y);
+    addSym(totalW - m, y);
   }
 
   cardOuter.appendChild(svg);
@@ -467,22 +455,11 @@ function download(){
     useCORS: true,
     allowTaint: true,
     backgroundColor: null,
-    logging: false,
-    onclone: function(doc) {
-      // Solo aseguramos que mantenga la fuente, eliminamos el multiplicador manual
-      // ya que html2canvas aplica el "scale: 3" automáticamente a todo.
-      const clonedOuter = doc.querySelector('#cardWrap .card-outer');
-      const svgEl = clonedOuter && clonedOuter.querySelector('.marco-deco');
-      if (svgEl) {
-        svgEl.querySelectorAll('text').forEach(t => {
-          t.setAttribute('font-family', "'Montserrat', 'Segoe UI', sans-serif");
-          t.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
-        });
-      }
-    }
+    logging: false
+    // Eliminamos la lógica compleja de onclone que causaba que se saliera de lugar
   }).then(canvas => {
     canvas.toBlob(async blob => {
-      const file = new File([blob], 'tarjeta.png', {type:'image/png'});
+      const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
 
       if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
         try{

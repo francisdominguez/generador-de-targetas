@@ -203,7 +203,6 @@ function applyDecoToMarco(){
     t.setAttribute('text-anchor','middle');
     t.setAttribute('dominant-baseline','central');
     t.setAttribute('font-size', sz);
-    t.setAttribute('font-family', "'Montserrat', sans-serif");
     t.setAttribute('fill', symColor);
     t.textContent = em;
     svg.appendChild(t);
@@ -374,25 +373,7 @@ function shareWhatsApp(){
   const cardElement=document.querySelector('#cardWrap .card-outer');
   if(!cardElement||typeof html2canvas==='undefined') return;
   showToast('📸 Preparando imagen…');
-  const decoSvg2=cardElement.querySelector('.marco-deco');
-  if(decoSvg2) decoSvg2.style.display='none';
   html2canvas(cardElement,{scale:2,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(c=>{
-    if(decoSvg2) decoSvg2.style.display='';
-    if(marcoDeco !== 'none'){
-      const ctx=c.getContext('2d'); const sc=2;
-      const W=c.width; const H=c.height;
-      const ms=marcoSize*sc; const m=ms/2;
-      const emojis={hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
-      const em=emojis[marcoDeco]||'';
-      const sz=Math.max(8,Math.min(marcoSize*0.65,18))*sc;
-      const step=sz+Math.max(5,marcoSize*0.35)*sc;
-      ctx.fillStyle=isLight(marco.c)?'rgba(0,0,0,0.65)':'rgba(255,255,255,0.95)';
-      ctx.font=`${sz}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
-      for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,m);
-      for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,H-m);
-      for(let y=m+step;y<H-m-step/2;y+=step) ctx.fillText(em,m,y);
-      for(let y=m+step;y<H-m-step/2;y+=step) ctx.fillText(em,W-m,y);
-    }
     c.toBlob(blob=>{
       if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],'tarjeta.png',{type:'image/png'})]})){
         navigator.share({ files:[new File([blob],'tarjeta.png',{type:'image/png'})], title:'Mi tarjeta', text:'Mira esta tarjeta que hice ❤️' }).catch(()=>{});
@@ -473,30 +454,22 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
-  const decoSvg = cardElement.querySelector('.marco-deco');
+  const decoSvg=cardElement.querySelector('.marco-deco');
   if(decoSvg) decoSvg.style.display='none';
-
-  html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false,onclone:function(doc){
-    doc.querySelectorAll('.marco-deco text').forEach(t=>{
-      t.setAttribute('font-family',"'Montserrat', sans-serif");
-      t.setAttribute('fill', isLight(marco.c)?'rgba(0,0,0,0.65)':'rgba(255,255,255,0.95)');
-    });
-  }}).then(canvas=>{
+  html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(canvas=>{
     if(decoSvg) decoSvg.style.display='';
-    if(marcoDeco !== 'none'){
-      const ctx=canvas.getContext('2d'); const sc=3;
-      const W=canvas.width; const H=canvas.height;
-      const ms=marcoSize*sc; const m=ms/2;
-      const emojis={hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'};
-      const em=emojis[marcoDeco]||'';
-      const sz=Math.max(8,Math.min(marcoSize*0.65,18))*sc;
-      const step=sz+Math.max(5,marcoSize*0.35)*sc;
-      ctx.fillStyle=isLight(marco.c)?'rgba(0,0,0,0.65)':'rgba(255,255,255,0.95)';
-      ctx.font=`${sz}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+    if(marcoDeco!=='none'){
+      const ctx=canvas.getContext('2d'),sc=3,W=canvas.width,H=canvas.height;
+      const ms=marcoSize*sc,m=ms/2;
+      const em={hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'}[marcoDeco]||'';
+      const sz=Math.max(10,Math.min(marcoSize-2,22))*sc;
+      const step=(sz/sc+6)*sc;
+      ctx.font=`${sz}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle=isLight(marco.c)?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.9)';
       for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,m);
       for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,H-m);
-      for(let y=m+step;y<H-m-step/2;y+=step) ctx.fillText(em,m,y);
-      for(let y=m+step;y<H-m-step/2;y+=step) ctx.fillText(em,W-m,y);
+      for(let y=step;y<H-step/2;y+=step) ctx.fillText(em,m,y);
+      for(let y=step;y<H-step/2;y+=step) ctx.fillText(em,W-m,y);
     }
     canvas.toBlob(async blob=>{
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});

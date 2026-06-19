@@ -460,41 +460,20 @@ function download(){
     backgroundColor: null,
     logging: false,
     onclone: function(doc) {
-      const SCALE = 3;
+      // Solo aseguramos que mantenga la fuente, eliminamos el multiplicador manual
+      // ya que html2canvas aplica el "scale: 3" automáticamente a todo.
       const clonedOuter = doc.querySelector('#cardWrap .card-outer');
       const svgEl = clonedOuter && clonedOuter.querySelector('.marco-deco');
-
       if (svgEl) {
-        const W = parseFloat(svgEl.getAttribute('viewBox').split(' ')[2]);
-        const H = parseFloat(svgEl.getAttribute('viewBox').split(' ')[3]);
-        const Ws = W * SCALE;
-        const Hs = H * SCALE;
-
-        // Escalar viewBox, dimensiones y el desplazamiento negativo
-        svgEl.setAttribute('viewBox', `0 0 ${Ws} ${Hs}`);
-        svgEl.style.width  = Ws + 'px';
-        svgEl.style.height = Hs + 'px';
-        const ms = marcoSize * SCALE;
-        svgEl.style.top  = `-${ms}px`;
-        svgEl.style.left = `-${ms}px`;
-
-        // Reescalar posiciones y tamaño de cada símbolo
-        const light = isLight(marco.c);
-        const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
         svgEl.querySelectorAll('text').forEach(t => {
-          t.setAttribute('x',         parseFloat(t.getAttribute('x'))         * SCALE);
-          t.setAttribute('y',         parseFloat(t.getAttribute('y'))         * SCALE);
-          t.setAttribute('font-size', parseFloat(t.getAttribute('font-size')) * SCALE);
-          t.setAttribute('fill', symColor);
           t.setAttribute('font-family', "'Montserrat', 'Segoe UI', sans-serif");
-          t.style.fill       = symColor;
           t.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
         });
       }
     }
   }).then(canvas => {
     canvas.toBlob(async blob => {
-      const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
+      const file = new File([blob], 'tarjeta.png', {type:'image/png'});
 
       if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
         try{
@@ -519,7 +498,6 @@ function download(){
     showToast('❌ Error al exportar');
   });
 }
-
 function fallbackDownload(canvas){
   const a=document.createElement('a');
   a.download='tarjeta-blue-princess.png';

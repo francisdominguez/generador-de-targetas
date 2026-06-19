@@ -179,16 +179,19 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // offsetWidth/Height ya incluye el borde (border-box)
-  const W = cardOuter.offsetWidth;
-  const H = cardOuter.offsetHeight;
+  // El card-outer tiene border CSS. position:absolute top:0 left:0 se ancla
+  // al padding-edge (interior del borde), NO al border-edge (exterior).
+  // Solución: desplazar el SVG -marcoSize en top/left para que arranque
+  // desde el borde exterior, y darle el tamaño total (contenido + 2 bordes).
+  const innerW = cardOuter.offsetWidth;
+  const innerH = cardOuter.offsetHeight;
+  const totalW = innerW + marcoSize * 2;
+  const totalH = innerH + marcoSize * 2;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-  // FIX: top:0 left:0 — el SVG cubre exactamente el card-outer (borde incluido)
-  // así html2canvas lo captura completo sin recortar ni desplazar
-  svg.style.cssText = `position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;`;
+  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
+  svg.style.cssText = `position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${totalW}px;height:${totalH}px;pointer-events:none;z-index:10;overflow:hidden;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
@@ -205,21 +208,21 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  // FIX: los corazones se posicionan dentro del borde (marcoSize/2 = centro del borde)
+  // Centro del borde CSS = marcoSize / 2 dentro del viewBox
   const m = marcoSize / 2;
 
   const positions = [];
 
-  // Borde superior e inferior — recorremos el ancho total del card-outer
-  for(let x = m; x <= W - m; x += step) {
+  // Borde superior e inferior — ancho total incluyendo esquinas
+  for(let x = m; x <= totalW - m; x += step) {
     positions.push({x: x, y: m});
-    positions.push({x: x, y: H - m});
+    positions.push({x: x, y: totalH - m});
   }
 
-  // Borde izquierdo y derecho — evitamos las esquinas ya cubiertas
-  for(let y = m + step; y < H - m; y += step) {
+  // Borde izquierdo y derecho — sin repetir las esquinas
+  for(let y = m + step; y < totalH - m; y += step) {
     positions.push({x: m, y: y});
-    positions.push({x: W - m, y: y});
+    positions.push({x: totalW - m, y: y});
   }
 
   positions.forEach(pos => addSym(pos.x, pos.y));
@@ -472,10 +475,15 @@ function download(){
         const Ws = W * SCALE;
         const Hs = H * SCALE;
 
-        // Actualizar tamaño del SVG al canvas escalado
+        // Escalar viewBox y dimensiones
         svgEl.setAttribute('viewBox', `0 0 ${Ws} ${Hs}`);
         svgEl.style.width  = Ws + 'px';
         svgEl.style.height = Hs + 'px';
+
+        // Escalar también el desplazamiento negativo (top/left = -marcoSize)
+        const ms = marcoSize * SCALE;
+        svgEl.style.top  = `-${ms}px`;
+        svgEl.style.left = `-${ms}px`;
 
         // Reescalar posiciones y tamaño de cada símbolo
         const light = isLight(marco.c);

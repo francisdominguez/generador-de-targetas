@@ -179,11 +179,10 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // cardWidth = ancho del contenido. El card-outer visual mide cardWidth + marcoSize*2.
-  // El SVG se posiciona top:-marcoSize left:-marcoSize para cubrir el borde verde.
-  // Su viewBox = tamaño total visual. Los corazones van en marcoSize/2 = centro del borde.
-  const totalW = cardWidth + marcoSize * 2;
-  const totalH = cardOuter.offsetHeight + marcoSize * 2;
+  // SOLUCIÓN: offsetWidth y offsetHeight ya incluyen los bordes.
+  // Usar estos valores directamente evita que el SVG sea más grande que la tarjeta.
+  const totalW = cardOuter.offsetWidth;
+  const totalH = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
@@ -227,7 +226,6 @@ function applyDecoToMarco(){
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);
 }
-
 /* ── STICKERS ── */
 function buildStickers(){
   const el=document.getElementById('stickerRow'); el.innerHTML='';

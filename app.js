@@ -171,6 +171,7 @@ function applyDecoToMarco(){
   const cardOuter = document.querySelector('#cardWrap .card-outer');
   if(!cardOuter) return;
   
+  // Limpiamos cualquier rastro anterior
   const prev = cardOuter.querySelector('.marco-deco');
   if(prev) prev.remove();
   if(marcoDeco === 'none') return;
@@ -179,36 +180,40 @@ function applyDecoToMarco(){
   const em = emojis[marcoDeco] || '';
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   
-  // 1. Obtenemos las dimensiones reales del marco dinámico
-  const totalW = cardOuter.offsetWidth;
-  const totalH = cardOuter.offsetHeight;
+  // 1. MEDIDAS EXACTAS
+  // Usamos offsetWidth/Height que ya incluyen el borde CSS del elemento
+  const w = cardOuter.offsetWidth;
+  const h = cardOuter.offsetHeight;
 
+  // 2. CREACIÓN DEL SVG
+  // El SVG debe cubrir el área total incluyendo los bordes
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
   
-  // 2. Ajustamos el viewBox para que sea exacto al marco actual
-  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
-  
-  // 3. Posicionamiento absoluto ajustado al borde (marcoSize)
+  // Posicionamos el SVG desplazado hacia afuera exactamente el grosor del marco
+  // Así el borde del SVG coincide con el borde exterior de la tarjeta
   svg.style.cssText = `
     position: absolute;
     top: -${marcoSize}px;
     left: -${marcoSize}px;
-    width: ${totalW + (marcoSize * 2)}px;
-    height: ${totalH + (marcoSize * 2)}px;
+    width: ${w + (marcoSize * 2)}px;
+    height: ${h + (marcoSize * 2)}px;
     pointer-events: none;
     z-index: 10;
     overflow: visible;
   `;
+  
+  // El viewBox define el espacio de dibujo. 
+  // Debe ser el tamaño del contenedor MÁS los márgenes que sacamos hacia afuera.
+  svg.setAttribute('viewBox', `0 0 ${w + (marcoSize * 2)} ${h + (marcoSize * 2)}`);
 
-  // Determinamos el color basado en si el marco elegido es claro u oscuro[cite: 2]
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
   function addSym(x, y){
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('x', x + marcoSize); // Compensamos el desplazamiento del marco
-    t.setAttribute('y', y + marcoSize);
+    t.setAttribute('x', x);
+    t.setAttribute('y', y);
     t.setAttribute('text-anchor','middle');
     t.setAttribute('dominant-baseline','central');
     t.setAttribute('font-size', sz);
@@ -217,26 +222,29 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
+  // EL TRUCO: 
+  // La línea central del borde está a la mitad del marcoSize desde el borde exterior.
   const m = marcoSize / 2;
-  const targetStep = sz + 8;
-  const countX = Math.round((totalW) / targetStep);
-  const countY = Math.round((totalH) / targetStep);
-  const stepX = (totalW) / countX;
-  const stepY = (totalH) / countY;
+  const step = sz + 8; // Espaciado entre corazones
 
-  // Dibujamos sobre el marco dinámico
-  for(let i = 0; i <= countX; i++) {
-    addSym(i * stepX, 0); 
-    addSym(i * stepX, totalH);
+  // Dimensiones totales de dibujo incluyendo el marco
+  const totalW = w + (marcoSize * 2);
+  const totalH = h + (marcoSize * 2);
+
+  // Dibujar
+  // Borde Superior e Inferior
+  for(let x = marcoSize; x <= totalW - marcoSize; x += step) {
+    addSym(x, m); // Arriba
+    addSym(x, totalH - m); // Abajo
   }
-  for(let i = 1; i < countY; i++) {
-    addSym(0, i * stepY);
-    addSym(totalW, i * stepY);
+  // Borde Izquierdo y Derecho
+  for(let y = marcoSize + step; y < totalH - marcoSize; y += step) {
+    addSym(m, y); // Izquierda
+    addSym(totalW - m, y); // Derecha
   }
 
   cardOuter.appendChild(svg);
 }
-
 function addSticker(em){
   const id=Date.now();
   placedStickers.push({emoji:em, x:180, y:80, id});

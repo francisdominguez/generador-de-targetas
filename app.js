@@ -179,19 +179,16 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // El card-outer tiene border CSS. position:absolute top:0 left:0 se ancla
-  // al padding-edge (interior del borde), NO al border-edge (exterior).
-  // Solución: desplazar el SVG -marcoSize en top/left para que arranque
-  // desde el borde exterior, y darle el tamaño total (contenido + 2 bordes).
-  const innerW = cardOuter.offsetWidth;
-  const innerH = cardOuter.offsetHeight;
-  const totalW = innerW + marcoSize * 2;
-  const totalH = innerH + marcoSize * 2;
+  // offsetWidth/offsetHeight en display:inline-block incluye el borde CSS.
+  // SVG en top:0 left:0 cubre exactamente el card-outer completo (borde + contenido).
+  // html2canvas captura todo y los corazones aparecen en vista previa y en descarga.
+  const W = cardOuter.offsetWidth;
+  const H = cardOuter.offsetHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('class','marco-deco');
-  svg.setAttribute('viewBox', `0 0 ${totalW} ${totalH}`);
-  svg.style.cssText = `position:absolute;top:-${marcoSize}px;left:-${marcoSize}px;width:${totalW}px;height:${totalH}px;pointer-events:none;z-index:10;overflow:hidden;`;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.style.cssText = `position:absolute;top:0;left:0;width:${W}px;height:${H}px;pointer-events:none;z-index:10;`;
 
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
@@ -208,21 +205,21 @@ function applyDecoToMarco(){
     svg.appendChild(t);
   }
 
-  // Centro del borde CSS = marcoSize / 2 dentro del viewBox
+  // El borde CSS ocupa de 0 a marcoSize en el viewBox → centro visual = marcoSize/2
   const m = marcoSize / 2;
 
   const positions = [];
 
-  // Borde superior e inferior — ancho total incluyendo esquinas
-  for(let x = m; x <= totalW - m; x += step) {
-    positions.push({x: x, y: m});
-    positions.push({x: x, y: totalH - m});
+  // Superior e inferior — de esquina a esquina
+  for(let x = m; x <= W - m; x += step) {
+    positions.push({x, y: m});
+    positions.push({x, y: H - m});
   }
 
-  // Borde izquierdo y derecho — sin repetir las esquinas
-  for(let y = m + step; y < totalH - m; y += step) {
-    positions.push({x: m, y: y});
-    positions.push({x: totalW - m, y: y});
+  // Izquierdo y derecho — sin repetir esquinas
+  for(let y = m + step; y < H - m; y += step) {
+    positions.push({x: m, y});
+    positions.push({x: W - m, y});
   }
 
   positions.forEach(pos => addSym(pos.x, pos.y));
@@ -475,15 +472,10 @@ function download(){
         const Ws = W * SCALE;
         const Hs = H * SCALE;
 
-        // Escalar viewBox y dimensiones
+        // Escalar viewBox y dimensiones (top:0 left:0, sin negativos)
         svgEl.setAttribute('viewBox', `0 0 ${Ws} ${Hs}`);
         svgEl.style.width  = Ws + 'px';
         svgEl.style.height = Hs + 'px';
-
-        // Escalar también el desplazamiento negativo (top/left = -marcoSize)
-        const ms = marcoSize * SCALE;
-        svgEl.style.top  = `-${ms}px`;
-        svgEl.style.left = `-${ms}px`;
 
         // Reescalar posiciones y tamaño de cada símbolo
         const light = isLight(marco.c);

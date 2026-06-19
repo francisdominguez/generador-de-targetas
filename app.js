@@ -77,12 +77,12 @@ let marcoDeco = 'none';
 let darkMode = false;
 let editIdx = -1;
 let cardHistory = JSON.parse(localStorage.getItem('cardHistory')||'[]');
-let placedStickers = []; // [{emoji, x, y, id}]
-let cardWidth = 460;      // ancho tarjeta
-let photoFit = 'cover';   // 'cover' o 'contain'
-let photoZoom = 100;      // zoom % de la foto (100 = normal)
-let photoX = 50;          // posición horizontal % (50 = centro)
-let photoY = 50;          // posición vertical % (50 = centro)
+let placedStickers = [];
+let cardWidth = 460;
+let photoFit = 'cover';
+let photoZoom = 100;
+let photoX = 50;
+let photoY = 50;
 let dragSticker = null;
 
 /* ── MENSAJES ── */
@@ -148,7 +148,7 @@ function getPatternCSS(id, bg){
     case 'stripes': return `repeating-linear-gradient(0deg, ${lineC} 0px, ${lineC} 1px, transparent 1px, transparent 16px)`;
     case 'diagonal': return `repeating-linear-gradient(45deg, ${lineC} 0px, ${lineC} 1px, transparent 1px, transparent 14px)`;
     case 'grid': return `linear-gradient(${lineC} 1px, transparent 1px) 0 0 / 18px 18px, linear-gradient(90deg, ${lineC} 1px, transparent 1px) 0 0 / 18px 18px`;
-    case 'hearts': return null; // SVG inline
+    case 'hearts': return null;
     case 'grad-pink': return `linear-gradient(135deg, #fde8ec 0%, #f0e0f0 100%)`;
     case 'grad-blue': return `linear-gradient(135deg, #dce8f5 0%, #dcdcf5 100%)`;
     case 'grad-gold': return `linear-gradient(135deg, #fef4d0 0%, #f5e6c8 100%)`;
@@ -167,11 +167,6 @@ function buildMarcosDeco(){
   });
 }
 
-function getDecoOverlay(id, w, h, color){
-  // Esta función ya no se usa — la decoración se aplica via applyDecoToMarco()
-  return '';
-}
-
 function applyDecoToMarco(){
   const cardOuter = document.querySelector('#cardWrap .card-outer');
   if(!cardOuter) return;
@@ -184,7 +179,6 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // Usar offsetWidth/offsetHeight — no se ven afectados por transform:scale del preview
   const W = cardOuter.offsetWidth;
   const H = cardOuter.offsetHeight;
 
@@ -209,10 +203,31 @@ function applyDecoToMarco(){
   }
 
   const m = marcoSize / 2;
-  for(let x = m; x < W - m; x += step) addSym(x, m);
-  for(let x = m; x < W - m; x += step) addSym(x, H - m);
-  for(let y = m + step; y < H - m; y += step) addSym(m, y);
-  for(let y = m + step; y < H - m; y += step) addSym(W - m, y);
+  
+  // Recopilar todas las posiciones para evitar duplicados
+  const positions = [];
+  
+  // SUPERIOR
+  for(let x = m; x < W - m; x += step) {
+    positions.push({x: x, y: m});
+  }
+  
+  // INFERIOR
+  for(let x = m; x < W - m; x += step) {
+    positions.push({x: x, y: H - m});
+  }
+  
+  // IZQUIERDA
+  for(let y = m + step; y < H - m - step/2; y += step) {
+    positions.push({x: m, y: y});
+  }
+  
+  // DERECHA
+  for(let y = m + step; y < H - m - step/2; y += step) {
+    positions.push({x: W - m, y: y});
+  }
+
+  positions.forEach(pos => addSym(pos.x, pos.y));
 
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);
@@ -236,7 +251,6 @@ function addSticker(em){
 
 function renderStickersUI(){
   const wrap=document.getElementById('cardWrap');
-  // Remove old sticker layer
   const old=wrap.querySelector('.sticker-layer');
   if(old) old.remove();
   if(!placedStickers.length) return;
@@ -252,7 +266,6 @@ function renderStickersUI(){
     s.style.cssText=`position:absolute;left:${sk.x}px;top:${sk.y}px;font-size:28px;cursor:move;user-select:none;pointer-events:all;transform:translate(-50%,-50%);`;
     s.title='Arrastrar · Doble clic para borrar';
 
-    // Drag
     let dragging=false, ox=0, oy=0;
     s.addEventListener('mousedown',e=>{ dragging=true; const r=wrap.getBoundingClientRect(); ox=e.clientX-r.left-sk.x; oy=e.clientY-r.top-sk.y; e.preventDefault(); });
     s.addEventListener('touchstart',e=>{ dragging=true; const r=wrap.getBoundingClientRect(); const t=e.touches[0]; ox=t.clientX-r.left-sk.x; oy=t.clientY-r.top-sk.y; e.preventDefault(); },{passive:false});
@@ -278,14 +291,12 @@ function initSliders(){
   document.getElementById('fontSizeSlider').addEventListener('input',e=>{ fontSize=parseInt(e.target.value); document.getElementById('fontSizeValue').textContent=fontSize+'%'; render(); });
   document.getElementById('subtituloInput').addEventListener('input',e=>{ subtitulo=e.target.value.toUpperCase(); render(); });
 
-  // Tamaño tarjeta
   document.getElementById('cardWidthSlider').addEventListener('input',e=>{
     cardWidth=parseInt(e.target.value);
     document.getElementById('cardWidthValue').textContent=cardWidth+'px';
     render();
   });
 
-  // Controles foto
   document.getElementById('photoFitBtn').addEventListener('click',()=>{
     photoFit = photoFit==='cover' ? 'contain' : 'cover';
     document.getElementById('photoFitBtn').textContent = photoFit==='cover' ? '✂️ Recortar (cover)' : '🖼 Completa (contain)';
@@ -345,7 +356,6 @@ function buildHistory(){
 }
 function delHistory(e,i){ e.stopPropagation(); cardHistory.splice(i,1); localStorage.setItem('cardHistory',JSON.stringify(cardHistory)); buildHistory(); }
 function loadSnap(s){
-  // Restaurar estado
   marco=MARCOS.find(x=>x.c===s.marco)||MARCOS[0];
   fondo=FONDOS.find(x=>x.c===s.fondo)||FONDOS[0];
   texto=TEXTOS.find(x=>x.c===s.texto)||TEXTOS[0];
@@ -378,7 +388,6 @@ function shareWhatsApp(){
       if(navigator.share && navigator.canShare && navigator.canShare({files:[new File([blob],'tarjeta.png',{type:'image/png'})]})){
         navigator.share({ files:[new File([blob],'tarjeta.png',{type:'image/png'})], title:'Mi tarjeta', text:'Mira esta tarjeta que hice ❤️' }).catch(()=>{});
       } else {
-        // Fallback: abrir WhatsApp web
         const url=encodeURIComponent('Mira esta tarjeta que hice con el Generador de Tarjetas ❤️');
         window.open(`https://wa.me/?text=${url}`,'_blank');
         showToast('💡 Descarga la imagen y adjúntala en WhatsApp');
@@ -408,7 +417,6 @@ function render(){
   const sstyle=`font-family:'${fontFam}',${fontGen};font-size:${subSz}px;color:${tc};font-weight:${fontWt>=700?400:fontWt};line-height:1.4;letter-spacing:0;text-transform:uppercase;text-align:${ta};opacity:.75;margin-top:8px;word-break:break-word;white-space:pre-wrap;overflow-wrap:break-word;display:block;width:100%;box-sizing:border-box;`;
   const subBlock=subtitulo?`<div style="${sstyle}">${subtitulo}</div>`:'';
 
-  // Foto compatible con html2canvas (sin object-fit ni transform)
   let photoInner='';
   if(imgSrc){
     const zs=photoZoom/100;
@@ -419,7 +427,6 @@ function render(){
     photoInner=`<div style="width:100%;height:100%;background:#e8e0d4;text-align:center;padding-top:30px;font-size:32px;color:#aaa;">&#9633;</div>`;
   }
 
-  // Fondo / patron
   let bgStyle=`background:${fondo.c};`;
   const patCSS=getPatternCSS(patron,fondo.c);
   if(patCSS&&patron.startsWith('grad-')){bgStyle=`background:${patCSS};`;}
@@ -443,7 +450,6 @@ function render(){
     </div>`;
 
   renderStickersUI();
-  // Aplicar decoración sobre el marco (necesita que el DOM esté listo)
   setTimeout(applyDecoToMarco, 10);
 }
 
@@ -454,27 +460,21 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
-  const decoSvg=cardElement.querySelector('.marco-deco');
-  if(decoSvg) decoSvg.style.display='none';
-  html2canvas(cardElement,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false}).then(canvas=>{
-    if(decoSvg) decoSvg.style.display='';
-    if(marcoDeco!=='none'){
-      const ctx=canvas.getContext('2d'),sc=3,W=canvas.width,H=canvas.height;
-      const ms=marcoSize*sc,m=ms/2;
-      const em={hearts:'❤',stars:'★',flowers:'✿','dots-deco':'•'}[marcoDeco]||'';
-      const sz=Math.max(10,Math.min(marcoSize-2,22))*sc;
-      const step=(sz/sc+6)*sc;
-      ctx.font=`${sz}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillStyle=isLight(marco.c)?'rgba(0,0,0,0.6)':'rgba(255,255,255,0.9)';
-      for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,m);
-      for(let x=step;x<W-step/2;x+=step) ctx.fillText(em,x,H-m);
-      for(let y=step;y<H-step/2;y+=step) ctx.fillText(em,m,y);
-      for(let y=step;y<H-step/2;y+=step) ctx.fillText(em,W-m,y);
-    }
-    canvas.toBlob(async blob=>{
+  const decoSvg = cardElement.querySelector('.marco-deco');
+  if(decoSvg) decoSvg.style.display = 'none';
+
+  html2canvas(cardElement, {
+    scale: 3,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: null,
+    logging: false
+  }).then(canvas => {
+    if(decoSvg) decoSvg.style.display = '';
+
+    canvas.toBlob(async blob => {
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
 
-      // Móvil: intentar compartir/guardar en galería con Web Share API
       if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
         try{
           await navigator.share({
@@ -484,16 +484,19 @@ function download(){
           });
           showToast('✅ Imagen guardada / compartida');
         } catch(e){
-          // Usuario canceló el share — igual ofrecer descarga normal
           if(e.name !== 'AbortError') fallbackDownload(canvas);
         }
       } else {
-        // Desktop o navegador sin soporte: descarga directa
         fallbackDownload(canvas);
       }
-      btn.textContent='⬇ Descargar PNG'; btn.disabled=false;
+      btn.textContent='⬇ Descargar PNG';
+      btn.disabled=false;
     }, 'image/png');
-  }).catch(()=>{ btn.textContent='⬇ Descargar PNG'; btn.disabled=false; });
+  }).catch(() => {
+    btn.textContent='⬇ Descargar PNG';
+    btn.disabled=false;
+    showToast('❌ Error al exportar');
+  });
 }
 
 function fallbackDownload(canvas){
@@ -503,7 +506,6 @@ function fallbackDownload(canvas){
   a.click();
   showToast('📥 Imagen descargada');
 }
-
 
 /* ── ACORDEÓN ── */
 function toggleAcc(btn){
@@ -528,15 +530,12 @@ render();
 
 /* ── TABS ── */
 function switchTab(btn, tabId) {
-  // Deactivate all tabs and panels
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  // Activate selected
   btn.classList.add('active');
   const panel = document.getElementById('panel-' + tabId);
   if (panel) {
     panel.classList.add('active');
-    // Scroll panel to top on tab switch
     document.querySelector('.tab-panels').scrollTop = 0;
   }
 }

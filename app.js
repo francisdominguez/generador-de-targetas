@@ -179,8 +179,8 @@ function applyDecoToMarco(){
   const sz = Math.max(10, Math.min(marcoSize - 2, 22));
   const step = sz + 6;
 
-  // SOLUCIÓN: offsetWidth y offsetHeight ya incluyen los bordes.
-  // Usar estos valores directamente evita que el SVG sea más grande que la tarjeta.
+  // offsetWidth y offsetHeight ya incluyen el borde verde. 
+  // Nos da la medida física total de la tarjeta.
   const totalW = cardOuter.offsetWidth;
   const totalH = cardOuter.offsetHeight;
 
@@ -200,13 +200,13 @@ function applyDecoToMarco(){
     t.setAttribute('dominant-baseline','central');
     t.setAttribute('font-size', sz);
     t.setAttribute('fill', symColor);
+    t.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
     t.textContent = em;
     svg.appendChild(t);
   }
 
-  // Centro del borde verde = marcoSize/2 dentro del viewBox
+  // El centro del borde verde
   const m = marcoSize / 2;
-
   const positions = [];
 
   // Superior e inferior
@@ -215,7 +215,7 @@ function applyDecoToMarco(){
     positions.push({x, y: totalH - m});
   }
 
-  // Izquierdo y derecho — sin repetir esquinas
+  // Izquierdo y derecho (sin repetir esquinas)
   for(let y = m + step; y < totalH - m; y += step) {
     positions.push({x: m, y});
     positions.push({x: totalW - m, y});

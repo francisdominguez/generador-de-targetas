@@ -1,4 +1,4 @@
-asi /* ══════════════════════════════════════
+/* ══════════════════════════════════════
    GENERADOR DE TARJETAS — app.js v3.0
 ══════════════════════════════════════ */
 
@@ -190,14 +190,7 @@ function applyDecoToMarco(){
   const light = isLight(marco.c);
   const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
 
-  // Usar Set para evitar duplicados
-  const usedPositions = new Set();
-
   function addSym(x, y){
-    const key = `${Math.round(x)},${Math.round(y)}`;
-    if(usedPositions.has(key)) return;
-    usedPositions.add(key);
-    
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('x', x);
     t.setAttribute('y', y);
@@ -211,25 +204,30 @@ function applyDecoToMarco(){
 
   const m = marcoSize / 2;
   
-  // SUPERIOR: de izquierda a derecha
+  // Recopilar todas las posiciones para evitar duplicados
+  const positions = [];
+  
+  // SUPERIOR
   for(let x = m; x < W - m; x += step) {
-    addSym(x, m);
+    positions.push({x: x, y: m});
   }
   
-  // INFERIOR: de izquierda a derecha
+  // INFERIOR
   for(let x = m; x < W - m; x += step) {
-    addSym(x, H - m);
+    positions.push({x: x, y: H - m});
   }
   
-  // IZQUIERDA: de arriba a abajo (TODO el lado)
-  for(let y = m; y < H - m; y += step) {
-    addSym(m, y);
+  // IZQUIERDA
+  for(let y = m + step; y < H - m - step/2; y += step) {
+    positions.push({x: m, y: y});
   }
   
-  // DERECHA: de arriba a abajo (TODO el lado)
-  for(let y = m; y < H - m; y += step) {
-    addSym(W - m, y);
+  // DERECHA
+  for(let y = m + step; y < H - m - step/2; y += step) {
+    positions.push({x: W - m, y: y});
   }
+
+  positions.forEach(pos => addSym(pos.x, pos.y));
 
   cardOuter.style.position = 'relative';
   cardOuter.appendChild(svg);
@@ -462,18 +460,30 @@ function download(){
   const btn=document.querySelector('.btn-dl');
   btn.textContent='⏳ Exportando…'; btn.disabled=true;
 
-  const decoSvg = cardElement.querySelector('.marco-deco');
-  if(decoSvg) decoSvg.style.display = 'none';
+  // Asegurar que la decoración esté aplicada
+  const existingDeco = cardElement.querySelector('.marco-deco');
+  if(existingDeco) existingDeco.remove();
+  applyDecoToMarco();
 
   html2canvas(cardElement, {
     scale: 3,
     useCORS: true,
     allowTaint: true,
     backgroundColor: null,
-    logging: false
+    logging: false,
+    onclone: function(doc) {
+      // Forzar estilos en los textos SVG del clon
+      const texts = doc.querySelectorAll('.marco-deco text');
+      const light = isLight(marco.c);
+      const symColor = light ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.9)';
+      texts.forEach(text => {
+        text.setAttribute('fill', symColor);
+        text.setAttribute('font-family', "'Montserrat', 'Segoe UI', sans-serif");
+        text.style.fill = symColor;
+        text.style.fontFamily = "'Montserrat', 'Segoe UI', sans-serif";
+      });
+    }
   }).then(canvas => {
-    if(decoSvg) decoSvg.style.display = '';
-
     canvas.toBlob(async blob => {
       const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
 

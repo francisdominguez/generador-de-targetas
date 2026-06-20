@@ -444,52 +444,78 @@ function render(){
 }
 
 /* ── DOWNLOAD ── */
-function download(){
-  const cardElement=document.querySelector('#cardWrap .card-outer');
-  if(!cardElement||typeof html2canvas==='undefined') return;
-  const btn=document.querySelector('.btn-dl');
-  btn.textContent='⏳ Exportando…'; btn.disabled=true;
+async function download() {
+  const cardElement = document.querySelector('#cardWrap .card-outer');
+  const svgEl = cardElement.querySelector('.marco-deco');
+  if (!cardElement || typeof html2canvas === 'undefined') return;
 
-  html2canvas(cardElement, {
-    scale: 3,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: null,
-    logging: false
-    // Eliminamos la lógica compleja de onclone que causaba que se saliera de lugar
-  }).then(canvas => {
-    canvas.toBlob(async blob => {
-      const file = new File([blob], 'tarjeta-blue-princess.png', {type:'image/png'});
+  const btn = document.querySelector('.btn-dl');
+  btn.textContent = '⏳ Exportando…';
+  btn.disabled = true;
 
-      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-        try{
-          await navigator.share({
-            files:[file],
-            title:'Mi tarjeta',
-            text:'Tarjeta creada con Generador de Tarjetas ❤️'
-          });
-          showToast('✅ Imagen guardada / compartida');
-        } catch(e){
-          if(e.name !== 'AbortError') fallbackDownload(canvas);
-        }
-      } else {
-        fallbackDownload(canvas);
-      }
-      btn.textContent='⬇ Descargar PNG';
-      btn.disabled=false;
-    }, 'image/png');
-  }).catch(() => {
-    btn.textContent='⬇ Descargar PNG';
-    btn.disabled=false;
+  try {
+    // 1. Ocultamos el SVG momentáneamente para capturar solo la tarjeta limpia
+    if (svgEl) svgEl.style.display = 'none';
+
+    // 2. Capturamos la tarjeta limpia
+    const canvas = await html2canvas(cardElement, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null
+    });
+
+    // 3. Volvemos a mostrar el SVG
+    if (svgEl) svgEl.style.display = '';
+
+    // 4. Creamos un nuevo Canvas "Master" para fusionar todo
+    const finalCanvas = document.createElement('canvas');
+    const ctx = finalCanvas.getContext('2d');
+    
+    // Ajustamos el tamaño para que quepa todo (tarjeta + marco)
+    const padding = marcoSize;
+    finalCanvas.width = canvas.width + (padding * 2 * 3); // *3 por la escala
+    finalCanvas.height = canvas.height + (padding * 2 * 3);
+
+    // Dibujamos la tarjeta capturada en el centro
+    ctx.drawImage(canvas, padding * 3, padding * 3);
+
+    // 5. Convertimos el SVG a una imagen e incrustamos en el canvas
+    if (svgEl) {
+      const svgData = new XMLSerializer().serializeToString(svgEl);
+      const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(svgBlob);
+      
+      const img = new Image();
+      img.onload = () => {
+        // Dibujamos el SVG exactamente encima sin cálculos de CSS
+        ctx.drawImage(img, 0, 0, finalCanvas.width, finalCanvas.height);
+        URL.revokeObjectURL(url);
+        finalizarDescarga(finalCanvas);
+      };
+      img.src = url;
+    } else {
+      finalizarDescarga(finalCanvas);
+    }
+
+  } catch (e) {
+    console.error(e);
+    btn.textContent = '⬇ Descargar PNG';
+    btn.disabled = false;
     showToast('❌ Error al exportar');
-  });
+  }
 }
-function fallbackDownload(canvas){
-  const a=document.createElement('a');
-  a.download='tarjeta-blue-princess.png';
-  a.href=canvas.toDataURL('image/png');
-  a.click();
-  showToast('📥 Imagen descargada');
+
+function finalizarDescarga(canvas) {
+  canvas.toBlob(async blob => {
+    const file = new File([blob], 'tarjeta.png', {type: 'image/png'});
+    // ... aquí pones tu lógica de compartir (navigator.share) o descarga
+    const a = document.createElement('a');
+    a.download = 'tarjeta.png';
+    a.href = URL.createObjectURL(blob);
+    a.click();
+    document.querySelector('.btn-dl').textContent = '⬇ Descargar PNG';
+    document.querySelector('.btn-dl').disabled = false;
+  }, 'image/png');
 }
 
 /* ── ACORDEÓN ── */
